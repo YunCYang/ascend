@@ -1,2 +1,2 @@
-# ascend
-A rock climbing route logbook application.
+# Ascend
+A rock climbing logbook application.
