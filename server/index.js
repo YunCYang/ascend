@@ -34,7 +34,9 @@ app.use((err, req, res, next) => {
   }
 });
 
-app.listen(process.env.PORT, () => {
-  // eslint-disable-next-line no-console
-  console.log('Listening on port', process.env.PORT);
-});
+module.exports = app;
+
+// app.listen(process.env.PORT, () => {
+//   // eslint-disable-next-line no-console
+//   console.log('Listening on port', process.env.PORT);
+// });
