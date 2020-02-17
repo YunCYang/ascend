@@ -8,7 +8,7 @@
     "dev:client": "webpack-dev-server",
     "dev:server": "nodemon server/start.js",
     "dev:sass": "sass --watch server/styles.sass server/public/styles.css",
-    "dev:test": "jest --watch",
+    "dev:test": "jest --watch --detectOpenHandles",
     "db:import": "source .env; psql $DATABASE_URL < database/dump.sql",
     "db:export": "source .env; pg_dump -c -O $DATABASE_URL > database/dump.sql",
     "build": "webpack --mode=production",
