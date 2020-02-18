@@ -73,15 +73,38 @@ describe('Initial Jest Test', () => {
     });
     expect(invalidPwdRes.status).toBe(401);
     expect(invalidPwdRes.body.error).toBe('password does not match');
-    const successLogInRes = await request.post('/api/auth/login').send({
+    const successRes = await request.post('/api/auth/login').send({
       userName: 'alex',
       password: 'Abcd123!'
     });
-    expect(successLogInRes.status).toBe(200);
-    expect(successLogInRes.body).toEqual({
+    expect(successRes.status).toBe(200);
+    expect(successRes.body).toEqual({
       userId: 1,
       userName: 'alex'
     });
+    done();
+  });
+
+  it('get all routes', async done => {
+    const getAllRes = await request.get('/api/route/all');
+    expect(getAllRes.status).toBe(200);
+    expect(getAllRes.body.length).toBeGreaterThanOrEqual(1);
+    done();
+  });
+
+  it('get 10 routes for 1 page', async done => {
+    const invalidUserIdRes = await request.get('/api/route/page/a/1');
+    expect(invalidUserIdRes.status).toBe(400);
+    expect(invalidUserIdRes.body.error).toBe('id a is not a valid positive integer');
+    const invalidRouteIdRes = await request.get('/api/route/page/1/a');
+    expect(invalidRouteIdRes.status).toBe(400);
+    expect(invalidRouteIdRes.body.error).toBe('id a is not a valid positive integer');
+    const nonExistingUserRes = await request.get('/api/route/page/100000/1');
+    expect(nonExistingUserRes.status).toBe(404);
+    expect(nonExistingUserRes.body.error).toBe('user of id 100000 does not exist');
+    const successRes = await request.get('/api/route/page/1/10');
+    expect(successRes.status).toBe(200);
+    expect(successRes.body.length).toBe(10);
     done();
   });
 });
