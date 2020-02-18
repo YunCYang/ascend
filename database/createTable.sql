@@ -14,7 +14,7 @@ CREATE TABLE "user" (
 CREATE TABLE "route" (
 	"routeId" serial NOT NULL,
 	"name" varchar(255) DEFAULT 'Unnamed',
-	"grade" varchar(255) NOT NULL,
+	"grade" int NOT NULL,
 	"userId" serial NOT NULL,
 	"location" varchar(255) NOT NULL,
 	"locationType" BOOLEAN NOT NULL,
