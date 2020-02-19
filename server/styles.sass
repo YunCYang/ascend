@@ -1,0 +1,37 @@
+@import url('https://fonts.googleapis.com/css?family=Cabin|Caveat|Nothing+You+Could+Do|Rock+Salt&display=swap')
+
+$font-logo: 'Nothing You Could Do', cursive
+$font-rough: 'Rock Salt', cursive
+$font-hand: 'Caveat', cursive
+$font-content: 'Cabin', sans-serif
+
+header
+  height: 100px
+
+  nav
+    .navbar-brand
+      font-family: $font-logo
+      font-size: 2em
+
+    .nav-item
+      .nav-link
+        color: #fff
+        font-size: 1.5em
+        font-family: $font-content
+
+    button
+      font-family: $font-content
+
+@media screen and (max-width: 400px)
+  header
+    nav
+      .navbar-brand
+        font-size: 1.5em
+
+      .nav-item
+        .nav-link
+          font-size: 1.05em
+
+      button.btn
+        padding: 0.25rem 0.4rem
+        font-size: 0.8rem
