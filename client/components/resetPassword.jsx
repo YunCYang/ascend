@@ -36,20 +36,19 @@ const ResetPassword = props => {
     setDidSubmit(true);
     checkIsValid(true);
     if (document.querySelector('#email').className !== 'form-control is-invalid') {
-      // const init = {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({
-      //     userName: userName,
-      //     password: password
-      //   })
-      // };
-      // fetch('/api/auth/login', init)
-      //   .then(res => res.json())
-      //   .then(res => {
-      //     checkIsValid(false, res.status, res.userId);
-      //   });
-      return null;
+      const init = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: email
+        })
+      };
+      fetch('/api/auth/reset', init)
+        .then(res => res.json())
+        .then(res => {
+          checkIsValid(false);
+          document.querySelector('#email').className = 'form-control is-valid';
+        });
     }
   };
 
@@ -88,6 +87,9 @@ const ResetPassword = props => {
             } />
           <div className="invalid-feedback">
             {emailFeedback()}
+          </div>
+          <div className="valid-feedback">
+            <span>Email sent successfully!</span>
           </div>
         </div>
         <div className='container w-25 d-flex flex-column text-center mt-3'>

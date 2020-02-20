@@ -86,6 +86,52 @@ describe('Initial Jest Test', () => {
     done();
   });
 
+  it('update password', async done => {
+    const emptyRes = await request.put('/api/auth/update').send({});
+    expect(emptyRes.status).toBe(400);
+    expect(emptyRes.body.error).toBe('missing user id');
+    const noPwdRes = await request.put('/api/auth/update').send({
+      userId: 1
+    });
+    expect(noPwdRes.status).toBe(400);
+    expect(noPwdRes.body.error).toBe('missing password');
+    const noTokenRes = await request.put('/api/auth/update').send({
+      userId: 1,
+      password: 'Abcd123!'
+    });
+    expect(noTokenRes.status).toBe(400);
+    expect(noTokenRes.body.error).toBe('missing token');
+    const invalidUserIdRes = await request.put('/api/auth/update').send({
+      userId: 'a',
+      password: 'Abcd123!',
+      token: 'abc'
+    });
+    expect(invalidUserIdRes.status).toBe(400);
+    expect(invalidUserIdRes.body.error).toBe('id a is not a valid positive integer');
+    const invalidPasswordRes = await request.put('/api/auth/update').send({
+      userId: 1,
+      password: 'Abcd123',
+      token: 'abc'
+    });
+    expect(invalidPasswordRes.status).toBe(400);
+    expect(invalidPasswordRes.body.error).toBe('password is not valid');
+    const invalidTokenRes = await request.put('/api/auth/update').send({
+      userId: 1,
+      password: 'Abcd123!',
+      token: 'abcdotdot123'
+    });
+    expect(invalidTokenRes.status).toBe(400);
+    expect(invalidTokenRes.body.error).toBe('token is not valid');
+    const nonExistingUserRes = await request.put('/api/auth/update').send({
+      userId: 100000,
+      password: 'Abcd123!',
+      token: 'abcdotdot123dotdotdef'
+    });
+    expect(nonExistingUserRes.status).toBe(404);
+    expect(nonExistingUserRes.body.error).toBe('user of id 100000 does not exist');
+    done();
+  });
+
   it('get all routes', async done => {
     const getAllRes = await request.get('/api/route/all');
     expect(getAllRes.status).toBe(200);

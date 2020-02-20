@@ -3,9 +3,13 @@ import { Route, Link, withRouter } from 'react-router-dom';
 import LogIn from './login';
 import SignUp from './signup';
 import ResetPassword from './resetPassword';
+import UpdatePassword from './updatePassword';
 
 const Account = props => {
   const [path, setPath] = React.useState('/account');
+  // const userId = '7';
+  // const token = 'test';
+  // const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTU4MjIyNDA5MiwiZXhwIjoxNTgyMjI3NjkyfQ.ZIjMzN3iwoeCNqNXjjFX9HjESD-jayA4XBzo_X_6Q1I';
 
   return (
     <div className='container account'>
@@ -23,6 +27,7 @@ const Account = props => {
       <Route exact path='/account' render={() => <LogIn setPath={setPath} />} />
       <Route path='/account/signup' render={() => <SignUp setPath={setPath} />} />
       <Route path='/account/reset' render={() => <ResetPassword setPath={setPath} />} />
+      <Route path={'/account/password/reset/:userId/:token'} render={({ match }) => <UpdatePassword userId={match.params.userId} token={match.params.token} setPath={setPath}/>} />
     </div>
   );
 };
