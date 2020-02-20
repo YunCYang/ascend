@@ -51,7 +51,10 @@ app.post('/api/auth/signup', (req, res, next) => {
           if (userNameResult.rows[0]) next(new ClientError(`user name ${req.body.userName} already exists`, 400));
           else {
             db.query(insertSql, insertValue)
-              .then(insertResult => res.status(201).json(insertResult.rows[0]))
+              .then(insertResult => res.status(201).json({
+                account: insertResult.rows[0],
+                status: 201
+              }))
               .catch(err => next(err));
           }
         })
@@ -78,7 +81,8 @@ app.post('/api/auth/login', (req, res, next) => {
           if (pwdResult) {
             res.status(200).json({
               userId: result.rows[0].userId,
-              userName: result.rows[0].userName
+              userName: result.rows[0].userName,
+              status: 200
             });
           } else next(new ClientError('password does not match', 401));
         });
@@ -138,7 +142,7 @@ app.use('/api', (req, res, next) => {
 
 app.use((err, req, res, next) => {
   if (err instanceof ClientError) {
-    res.status(err.status).json({ error: err.message });
+    res.status(err.status).json({ error: err.message, status: err.status });
   } else {
     console.error(err);
     res.status(500).json({

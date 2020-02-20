@@ -1,7 +1,30 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
+import { IdContext } from './app';
 
-const Header = () => {
+const Header = props => {
+  const id = React.useContext(IdContext);
+
+  React.useEffect(
+    () => {
+      if (!id.id && props.location.pathname[1] !== 'a') props.history.push('/account');
+    }
+  );
+
+  const createButton = () => {
+    if (id.id) {
+      return <button type='button' className='btn btn-outline-danger'
+        onClick={
+          () => id.setId(null)
+        }>Log Out</button>;
+    } else {
+      return <button type='button' className='btn btn-outline-success'
+        onClick={
+          () => props.history.push('/account')
+        }>Log In</button>;
+    }
+  };
+
   return (
     <header>
       <nav className='navbar navbar-dark bg-dark h-100'>
@@ -14,10 +37,10 @@ const Header = () => {
             <Link to='/stat' className='nav-link'>Stat</Link>
           </li>
         </ul>
-        <button type='button' className='btn btn-outline-danger'>Log Out</button>
+        {createButton()}
       </nav>
     </header>
   );
 };
 
-export default Header;
+export default withRouter(Header);

@@ -9,22 +9,62 @@ header nav .navbar-brand {
 header nav .nav-item .nav-link {
   color: #fff;
   font-size: 1.5em;
-  font-family: "Cabin", sans-serif;
+  font-family: "Rock Salt", cursive;
+}
+header nav .nav-item .nav-link:hover {
+  color: #20C997;
 }
 header nav button {
+  font-family: "Rock Salt", cursive;
+}
+
+div.main .nav {
+  font-family: "Caveat", cursive;
+  font-size: 1.2em;
+}
+div.main div.account h1 {
+  font-family: "Caveat", cursive;
+}
+div.main div.account form {
   font-family: "Cabin", sans-serif;
 }
 
-@media screen and (max-width: 400px) {
+@media screen and (max-width: 991px) {
+  div.main div.account .w-25 {
+    width: 50% !important;
+  }
+}
+@media screen and (max-width: 480px) {
   header nav .navbar-brand {
     font-size: 1.5em;
   }
   header nav .nav-item .nav-link {
-    font-size: 1.05em;
+    font-size: 1em;
   }
   header nav button.btn {
-    padding: 0.25rem 0.4rem;
-    font-size: 0.8rem;
+    padding: 0.25rem 0.3rem;
+    font-size: 0.55rem;
+  }
+}
+@media screen and (max-width: 420px) {
+  div.main div.account .w-25 {
+    width: 75% !important;
+  }
+}
+@media screen and (max-width: 350px) {
+  header nav .navbar-brand {
+    font-size: 1.5em;
+  }
+  header nav .nav-item .nav-link {
+    font-size: 0.75em;
+  }
+  header nav button.btn {
+    padding: 0.25rem 0.3rem;
+    font-size: 0.5rem;
+  }
+
+  div.main .nav {
+    font-size: 1em;
   }
 }
 

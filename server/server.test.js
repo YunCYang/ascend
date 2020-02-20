@@ -80,7 +80,8 @@ describe('Initial Jest Test', () => {
     expect(successRes.status).toBe(200);
     expect(successRes.body).toEqual({
       userId: 1,
-      userName: 'alex'
+      userName: 'alex',
+      status: 200
     });
     done();
   });
