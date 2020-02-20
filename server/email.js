@@ -13,4 +13,4 @@ const emailTemplate = (email, url) => {
   return { from, to, subject, html };
 };
 
-export default emailTemplate;
+module.exports = emailTemplate;
