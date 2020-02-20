@@ -1,4 +1,5 @@
 .env
+.env.real
 .idea
 .vscode
 .DS_Store

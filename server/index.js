@@ -1,11 +1,14 @@
 require('dotenv/config');
 const express = require('express');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
 
 const db = require('./database');
 const ClientError = require('./client-error');
 const staticMiddleware = require('./static-middleware');
 const sessionMiddleware = require('./session-middleware');
+const emailTemplate = require('./email');
 
 const app = express();
 
@@ -21,14 +24,20 @@ const intTest = (id, next) => {
   } else return null;
 };
 
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_LOGIN,
+    pass: process.env.EMAIL_PASSWORD
+  }
+});
+
 // sign up
 app.post('/api/auth/signup', (req, res, next) => {
   const saltRounds = 11;
   if (!req.body.userName) next(new ClientError('missing user name', 400));
   else if (!req.body.email) next(new ClientError('missing email', 400));
   else if (!req.body.password) next(new ClientError('missing password', 400));
-  const emailTest = /^[\w.=-]+@[\w.-]+\.[\w]{2,4}$/;
-  if (!emailTest.exec(req.body.email)) next(new ClientError(`email ${req.body.email} is not valid`, 400));
   const pwdTest = /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*_=+-])(?=.{8,})/;
   if (!pwdTest.exec(req.body.password)) next(new ClientError('password is not valid', 400));
   const checkUserNameSql = `
@@ -36,13 +45,19 @@ app.post('/api/auth/signup', (req, res, next) => {
       from "user"
      where "userName" = $1;
   `;
+  const checkEmailSql = `
+    select "email"
+      from "user"
+     where "email" = $1;
+  `;
   const insertSql = `
     insert into "user" ("userName", "email", "password")
     values ($1, $2, $3)
     returning "userName", "email";
   `;
   const userNameValue = [req.body.userName];
-  if (emailTest.exec(req.body.email) && pwdTest.exec(req.body.password)) {
+  const emailValue = [req.body.email];
+  if (pwdTest.exec(req.body.password)) {
     bcrypt.hash(req.body.password, saltRounds, (err, hash) => {
       if (err) next(err);
       const insertValue = [req.body.userName, req.body.email, hash];
@@ -50,11 +65,18 @@ app.post('/api/auth/signup', (req, res, next) => {
         .then(userNameResult => {
           if (userNameResult.rows[0]) next(new ClientError(`user name ${req.body.userName} already exists`, 400));
           else {
-            db.query(insertSql, insertValue)
-              .then(insertResult => res.status(201).json({
-                account: insertResult.rows[0],
-                status: 201
-              }))
+            db.query(checkEmailSql, emailValue)
+              .then(emailResult => {
+                if (emailResult.rows[0]) next(new ClientError(`email ${req.body.email} already exists`, 400));
+                else {
+                  db.query(insertSql, insertValue)
+                    .then(insertResult => res.status(201).json({
+                      account: insertResult.rows[0],
+                      status: 201
+                    }))
+                    .catch(err => next(err));
+                }
+              })
               .catch(err => next(err));
           }
         })
@@ -87,6 +109,32 @@ app.post('/api/auth/login', (req, res, next) => {
           } else next(new ClientError('password does not match', 401));
         });
       }
+    })
+    .catch(err => next(err));
+});
+// send reset password email
+app.post('/api/auth/reset', (req, res, next) => {
+  if (!req.body.email) next(new ClientError('missing email', 400));
+  const getUserInfoSql = `
+    select "userId", "password", "createdAt"
+      from "user"
+     where "email" = $1;
+  `;
+  const getUserInfoValue = [req.body.email];
+  db.query(getUserInfoSql, getUserInfoValue)
+    .then(getUserInfoResult => {
+      if (getUserInfoResult.rows[0]) {
+        const secret = getUserInfoResult.rows[0].password + '-' +
+          getUserInfoResult.rows[0].createdAt;
+        const token = jwt.sign(getUserInfoResult.rows[0].userId, secret, {
+          expiresIn: 3600
+        });
+        const resetUrl = `http://localhost:3000/password/reset/${getUserInfoResult.rows[0].userId}/${token}`;
+        transporter.sendMail(emailTemplate(getUserInfoResult.rows[0].email, resetUrl),
+          (err, info) => {
+            if (err) next(new ClientError('error sending email', 500));
+          });
+      } else next(new ClientError(`email ${req.body.email} does not exist`, 404));
     })
     .catch(err => next(err));
 });
