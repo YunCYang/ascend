@@ -7,7 +7,7 @@ const SignUp = props => {
   const [password, setPassword] = React.useState('');
   const [confirmPassword, setConfirmPassword] = React.useState('');
   const [userNameValidation, setUserNameValidation] = React.useState(30);
-  const [emailValidation, setEmailValidation] = React.useState(2);
+  const [emailValidation, setEmailValidation] = React.useState(6);
   const [passwordValidation, setPasswordValidation] = React.useState(62);
   const [confirmPasswordValidation, setConfirmPasswordValidation] = React.useState(2);
   const [didSubmit, setDidSubmit] = React.useState(false);
@@ -50,7 +50,7 @@ const SignUp = props => {
         userNameValCopy = userNameValCopy | 16;
       }
       if (!email) {
-        emailValCopy = 2;
+        emailValCopy = 6;
         document.querySelector('#email').className = 'form-control is-invalid';
       } else {
         emailValCopy = emailValCopy | 1;
@@ -58,6 +58,7 @@ const SignUp = props => {
           if (emailValCopy & 2) emailValCopy = emailValCopy ^ 2;
           document.querySelector('#email').className = 'form-control is-invalid';
         } else emailValCopy = emailValCopy | 2;
+        emailValCopy = emailValCopy | 4;
       }
       if (!password) {
         passwordValCopy = 62;
@@ -102,7 +103,7 @@ const SignUp = props => {
       if (userNameValCopy === 31) {
         document.querySelector('#userName').className = 'form-control';
       }
-      if (emailValCopy === 3) {
+      if (emailValCopy === 7) {
         document.querySelector('#email').className = 'form-control';
       }
       if (passwordValCopy === 63) {
@@ -135,10 +136,17 @@ const SignUp = props => {
         .then(res => res.json())
         .then(res => {
           if (res.status === 400) {
-            let userNameValCopy = userNameValidation;
-            if (userNameValCopy & 16) userNameValCopy = userNameValCopy ^ 16;
-            setUserNameValidation(userNameValCopy);
-            document.querySelector('#userName').className = 'form-control is-invalid';
+            if (res.error === `user name ${userName} already exists`) {
+              let userNameValCopy = userNameValidation | 1;
+              if (userNameValCopy & 16) userNameValCopy = userNameValCopy ^ 16;
+              setUserNameValidation(userNameValCopy);
+              document.querySelector('#userName').className = 'form-control is-invalid';
+            } else {
+              let emailValCopy = emailValidation | 1;
+              if (emailValCopy & 4) emailValCopy = emailValCopy ^ 4;
+              setEmailValidation(emailValCopy);
+              document.querySelector('#email').className = 'form-control is-invalid';
+            }
           } else if (res.status === 201) {
             document.querySelector('#userName').className = 'form-control is-valid';
             document.querySelector('#email').className = 'form-control is-valid';
@@ -167,6 +175,7 @@ const SignUp = props => {
       <>
         {!(emailValidation & 1) ? <p>Email is required</p> : null}
         {!(emailValidation & 2) ? <p>Email format is invalid</p> : null}
+        {!(emailValidation & 4) ? <p>Email already exists</p> : null}
       </>
     );
   };

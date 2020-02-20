@@ -35,13 +35,13 @@ describe('Initial Jest Test', () => {
     });
     expect(duplicateUserRes.status).toBe(400);
     expect(duplicateUserRes.body.error).toBe('user name alex already exists');
-    const invalidEmailRes = await request.post('/api/auth/signup').send({
-      userName: 'alex',
-      email: 'alex@alex',
+    const duplicateEmailRes = await request.post('/api/auth/signup').send({
+      userName: 'alex6',
+      email: 'alex@gmail.com',
       password: 'Abcd123!'
     });
-    expect(invalidEmailRes.status).toBe(400);
-    expect(invalidEmailRes.body.error).toBe('email alex@alex is not valid');
+    expect(duplicateEmailRes.status).toBe(400);
+    expect(duplicateEmailRes.body.error).toBe('email alex@gmail.com already exists');
     const invalidPasswordRes = await request.post('/api/auth/signup').send({
       userName: 'alex',
       email: 'alex@gmail.com',
