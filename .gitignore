@@ -1,5 +1,5 @@
 .env
-.env.real
+.env.production
 .idea
 .vscode
 .DS_Store
