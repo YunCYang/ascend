@@ -8,7 +8,9 @@ import Stat from './stat';
 export const IdContext = React.createContext(null);
 
 const App = () => {
-  const [id, setId] = React.useState(null);
+  const [id, setId] = React.useState(
+    sessionStorage.getItem('id') || null
+  );
 
   return (
     <IdContext.Provider value={{ id, setId }}>

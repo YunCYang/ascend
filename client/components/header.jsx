@@ -15,7 +15,10 @@ const Header = props => {
     if (id.id) {
       return <button type='button' className='btn btn-outline-danger'
         onClick={
-          () => id.setId(null)
+          () => {
+            sessionStorage.removeItem('id');
+            id.setId(null);
+          }
         }>Log Out</button>;
     } else {
       return <button type='button' className='btn btn-outline-success'

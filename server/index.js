@@ -201,40 +201,29 @@ app.put('/api/auth/update', (req, res, next) => {
     })
     .catch(err => next(err));
 });
-// get all routes
-app.get('/api/route/all', (req, res, next) => {
-  const sql = `
-    select *
-      from "user";
-  `;
-  db.query(sql)
-    .then(result => res.status(200).json(result.rows))
-    .catch(err => next(err));
-});
-// get routes for page (pagination)
-app.get('/api/route/page/:userId/:routeId', (req, res, next) => {
+// get route from user
+app.get('/api/route/all/:userId', (req, res, next) => {
   intTest(req.params.userId, next);
-  intTest(req.params.routeId, next);
   const checkUserSql = `
     select "userId"
       from "route"
      where "userId" = $1;
   `;
   const getRouteSql = `
-    select "routeId", "name", "grade", "location", "locationType", "attempts", "angle", "completed"
+    select "name", "grade", "location", "completed"
       from "route"
-     where "userId" = $1 and "routeId" > $2
-     order by "routeId" ASC
-     limit 10;
+     where "userId" = $1
+     order by "completed" DESC;
   `;
-  const checkUserValue = [parseInt(req.params.userId)];
-  const getRouteValue = [parseInt(req.params.userId), parseInt(req.params.routeId)];
-  db.query(checkUserSql, checkUserValue)
-    .then(checkUserResult => {
-      if (!checkUserResult.rows[0]) next(new ClientError(`user of id ${req.params.userId} does not exist`, 404));
+  const userValue = [parseInt(req.params.userId)];
+  db.query(checkUserSql, userValue)
+    .then(userResult => {
+      if (!userResult.rows[0]) next(new ClientError(`user of id ${req.params.userId} does not exist`, 404));
       else {
-        db.query(getRouteSql, getRouteValue)
-          .then(getRouteResult => res.status(200).json(getRouteResult.rows))
+        db.query(getRouteSql, userValue)
+          .then(routeResult => {
+            res.status(200).json(routeResult.rows);
+          })
           .catch(err => next(err));
       }
     })

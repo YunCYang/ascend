@@ -29,12 +29,16 @@ div.main
     font-family: $font-hand
     font-size: 1.2em
 
-  div.account
+  div.section
     h1
       font-family: $font-hand
 
     form
       font-family: $font-content
+
+    div.card
+      font-family: $font-content
+      cursor: pointer
 
 @media screen and (max-width: 991px)
   div.main
@@ -42,7 +46,7 @@ div.main
       .w-25
         width: 50% !important
 
-@media screen and (max-width: 480px)
+@media screen and (max-width: 500px)
   header
     nav
       .navbar-brand
@@ -56,21 +60,27 @@ div.main
         padding: 0.25rem 0.3rem
         font-size: 0.55rem
 
+  .card-body
+    h5
+      font-size: 1.2em
+    h6
+      font-size: 0.8em
+
 @media screen and (max-width: 420px)
   div.main
     div.account
       .w-25
         width: 75% !important
 
-@media screen and (max-width: 350px)
+@media screen and (max-width: 370px)
   header
     nav
       .navbar-brand
-        font-size: 1.5em
+        font-size: 1.25em
 
       .nav-item
         .nav-link
-          font-size: 0.75em
+          font-size: 0.7em
 
       button.btn
         padding: 0.25rem 0.3rem

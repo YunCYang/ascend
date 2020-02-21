@@ -132,26 +132,16 @@ describe('Initial Jest Test', () => {
     done();
   });
 
-  it('get all routes', async done => {
-    const getAllRes = await request.get('/api/route/all');
-    expect(getAllRes.status).toBe(200);
-    expect(getAllRes.body.length).toBeGreaterThanOrEqual(1);
-    done();
-  });
-
-  it('get 10 routes for 1 page', async done => {
-    const invalidUserIdRes = await request.get('/api/route/page/a/1');
+  it('get route from user', async done => {
+    const invalidUserIdRes = await request.get('/api/route/all/a');
     expect(invalidUserIdRes.status).toBe(400);
     expect(invalidUserIdRes.body.error).toBe('id a is not a valid positive integer');
-    const invalidRouteIdRes = await request.get('/api/route/page/1/a');
-    expect(invalidRouteIdRes.status).toBe(400);
-    expect(invalidRouteIdRes.body.error).toBe('id a is not a valid positive integer');
-    const nonExistingUserRes = await request.get('/api/route/page/100000/1');
+    const nonExistingUserRes = await request.get('/api/route/all/100000');
     expect(nonExistingUserRes.status).toBe(404);
     expect(nonExistingUserRes.body.error).toBe('user of id 100000 does not exist');
-    const successRes = await request.get('/api/route/page/1/10');
+    const successRes = await request.get('/api/route/all/1');
     expect(successRes.status).toBe(200);
-    expect(successRes.body.length).toBe(10);
+    expect(successRes.body.length).toBe(22);
     done();
   });
 });
