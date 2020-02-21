@@ -2,7 +2,9 @@ import React from 'react';
 
 const RouteSearch = () => {
   return (
-    <div></div>
+    <div>
+      <h1>Search Route</h1>
+    </div>
   );
 };
 

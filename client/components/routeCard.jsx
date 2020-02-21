@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const RouteCard = props => {
   const gradeConversion = () => {
@@ -120,9 +121,11 @@ const RouteCard = props => {
       <div className={`card ${paintBorder()}`}>
         <div className="card-body">
           <div className="name-grade container d-flex justify-content-between">
-            <div>
-              <h5 className='card-title'>{props.route.name}</h5>
-            </div>
+            <Link to={`/route/detail/${props.route.routeId}`}>
+              <div className='card-title'>
+                <h5>{props.route.name}</h5>
+              </div>
+            </Link>
             <div>
               <h6>V{props.route.grade} | {gradeConversion()}</h6>
             </div>

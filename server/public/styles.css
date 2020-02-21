@@ -30,6 +30,12 @@ div.main div.section form {
 }
 div.main div.section div.card {
   font-family: "Cabin", sans-serif;
+}
+div.main div.section div.card a {
+  color: #000;
+  text-decoration: none;
+}
+div.main div.section div.card .card-title {
   cursor: pointer;
 }
 

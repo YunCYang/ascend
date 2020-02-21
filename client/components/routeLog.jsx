@@ -8,7 +8,7 @@ const RouteLog = props => {
   const id = React.useContext(IdContext);
 
   React.useEffect(
-    () => props.setPath('/')
+    () => props.setPath('/route')
   );
 
   React.useEffect(

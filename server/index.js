@@ -210,7 +210,7 @@ app.get('/api/route/all/:userId', (req, res, next) => {
      where "userId" = $1;
   `;
   const getRouteSql = `
-    select "name", "grade", "location", "completed"
+    select "routeId", "name", "grade", "location", "completed"
       from "route"
      where "userId" = $1
      order by "completed" DESC;
@@ -223,6 +223,36 @@ app.get('/api/route/all/:userId', (req, res, next) => {
         db.query(getRouteSql, userValue)
           .then(routeResult => {
             res.status(200).json(routeResult.rows);
+          })
+          .catch(err => next(err));
+      }
+    })
+    .catch(err => next(err));
+});
+// get single route information using route id
+app.get('/api/route/detail/:userId/:routeId', (req, res, next) => {
+  intTest(req.params.userId, next);
+  intTest(req.params.routeId, next);
+  const checkUserSql = `
+    select "userId"
+      from "route"
+     where "userId" = $1;
+  `;
+  const getRouteSql = `
+    select *
+      from "route"
+     where "userId" = $1 and "routeId" = $2;
+  `;
+  const checkUserValue = [parseInt(req.params.userId)];
+  const getRouteValue = [parseInt(req.params.userId), parseInt(req.params.routeId)];
+  db.query(checkUserSql, checkUserValue)
+    .then(userResult => {
+      if (!userResult.rows[0]) next(new ClientError(`user of id ${req.params.userId} does not exist`, 404));
+      else {
+        db.query(getRouteSql, getRouteValue)
+          .then(routeResult => {
+            if (!routeResult.rows[0]) next(new ClientError(`route of id ${req.params.routeId} does not exist`, 404));
+            else res.status(200).json(routeResult.rows[0]);
           })
           .catch(err => next(err));
       }

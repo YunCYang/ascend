@@ -19,7 +19,7 @@ const App = () => {
           <>
             <Header />
             <div className="main">
-              <Route exact path="/" render={() => <RRoute />} />
+              <Route path="/route" render={() => <RRoute />} />
               <Route path="/account" render={() => <Account />} />
               <Route path="/stat" render={() => <Stat />} />
             </div>
