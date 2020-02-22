@@ -138,7 +138,7 @@ const RouteCard = props => {
               <i className="fas fa-times-circle fa-lg"></i>
             </div>
           </div>
-          <footer className='container'><small>{formatDate()}</small></footer>
+          <footer className='container mt-2'><small>{formatDate()}</small></footer>
         </div>
       </div>
     </div>
