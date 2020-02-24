@@ -39,6 +39,10 @@ div.main div.section div.card .card-title {
   cursor: pointer;
 }
 
+.pointer {
+  cursor: pointer;
+}
+
 @media screen and (max-width: 991px) {
   div.main div.account .w-25 {
     width: 50% !important;

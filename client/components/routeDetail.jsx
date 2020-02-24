@@ -4,6 +4,47 @@ import { IdContext } from './app';
 const RouteDetail = props => {
   const id = React.useContext(IdContext);
   const [routeInfo, setRouteInfo] = React.useState({});
+  const [isEdit, setIsEdit] = React.useState(false);
+  const [nameState, setNameState] = React.useState({
+    value: routeInfo.name,
+    tempValue: '',
+    isEdit: false
+  });
+  const [gradeState, setGradeState] = React.useState({
+    value: routeInfo.grade,
+    tempValue: '',
+    isEdit: false
+  });
+  const [attemptState, setAttemptState] = React.useState({
+    value: routeInfo.attempts,
+    tempValue: '',
+    isEdit: false
+  });
+  const [locationState, setLocationState] = React.useState({
+    value: routeInfo.location,
+    tempValue: '',
+    isEdit: false
+  });
+  const [locationTypeState, setLocationTypeState] = React.useState({
+    value: routeInfo.locationType,
+    tempValue: '',
+    isEdit: false
+  });
+  const [timeState, setTimeState] = React.useState({
+    value: routeInfo.completed,
+    tempValue: '',
+    isEdit: false
+  });
+  const [angleState, setAngleState] = React.useState({
+    value: routeInfo.angle,
+    tempValue: '',
+    isEdit: false
+  });
+  const [noteState, setNoteState] = React.useState({
+    value: routeInfo.note,
+    tempValue: '',
+    isEdit: false
+  });
 
   const gradeConversion = () => {
     let fontScale = null;
@@ -92,6 +133,91 @@ const RouteDetail = props => {
     } else return null;
   };
 
+  const renderButton = () => {
+    if (isEdit) {
+      return (
+        <>
+          <button type='button' className='btn btn-success' onClick={
+            () => {
+              updateValue();
+              // resetEdit();
+            }
+          }>Confirm</button>
+          <button type='button' className='btn btn-secondary' onClick={
+            () => resetEdit()
+          }>Cancel</button>
+        </>
+      );
+    } else {
+      return (
+        <>
+          <button type='button' className='btn btn-info' onClick={
+            () => setIsEdit(true)
+          }>Edit</button>
+          <button type='button' className='btn btn-danger'>Delete</button>
+        </>
+      );
+    }
+  };
+
+  const toggleTextInput = (elem1, elem2, state) => {
+    if (isEdit && state.isEdit) return elem2;
+    else return elem1;
+  };
+
+  const renderInput = (state, setState, placeholder) => {
+    return (
+      <>
+        <input type={setState === setTimeState ? 'date' : 'text'}
+          className='form-control mt-2' value={state.tempValue}
+          placeholder={placeholder} onChange={
+            e => setState({ ...state, tempValue: e.target.value })
+          } />
+      </>
+    );
+  };
+
+  const resetEdit = () => {
+    setIsEdit(false);
+    if (nameState.isEdit) setNameState({ ...nameState, isEdit: false });
+    if (gradeState.isEdit) setGradeState({ ...gradeState, isEdit: false });
+    if (attemptState.isEdit) setAttemptState({ ...attemptState, isEdit: false });
+    if (locationState.isEdit) setLocationState({ ...locationState, isEdit: false });
+    if (locationTypeState.isEdit) setLocationTypeState({ ...locationTypeState, isEdit: false });
+    if (timeState.isEdit) setTimeState({ ...timeState, isEdit: false });
+    if (angleState.isEdit) setAngleState({ ...angleState, isEdit: false });
+    if (noteState.isEdit) setNoteState({ ...noteState, isEdit: false });
+  };
+
+  const updateValue = () => {
+    setIsEdit(false);
+    const stateArray = [{ state: nameState, setState: setNameState },
+      { state: gradeState, setState: setGradeState },
+      { state: attemptState, setState: setAttemptState },
+      { state: locationState, setState: setLocationState },
+      { state: locationTypeState, setState: setLocationTypeState },
+      { state: timeState, setState: setTimeState },
+      { state: angleState, setState: setAngleState },
+      { state: noteState, setState: setNoteState }];
+    for (const item of stateArray) {
+      if (item.state.isEdit || item.state.tempValue) {
+        if (item.state.tempValue) {
+          const tempCopy = item.state.tempValue;
+          item.setState({
+            value: tempCopy,
+            tempValue: '',
+            isEdit: false
+          });
+        } else {
+          item.setState({
+            ...item.state,
+            isEdit: false
+          });
+        }
+      }
+    }
+  };
+
   React.useEffect(
     () => props.setPath('/route/detail')
   );
@@ -101,52 +227,153 @@ const RouteDetail = props => {
       if (id.id) {
         fetch(`/api/route/detail/${id.id}/${props.routeId}`)
           .then(res => res.json())
-          .then(res => setRouteInfo(res));
+          .then(res => {
+            setRouteInfo(res);
+          });
       }
     }, []
   );
 
+  React.useEffect(
+    () => {
+      setNameState({ ...nameState, value: routeInfo.name });
+      setGradeState({ ...gradeState, value: routeInfo.grade });
+      setAttemptState({ ...attemptState, value: routeInfo.attempts });
+      setLocationState({ ...locationState, value: routeInfo.location });
+      setLocationTypeState({ ...locationTypeState, value: routeInfo.locationType });
+      setTimeState({ ...timeState, value: routeInfo.completed });
+      setAngleState({ ...angleState, value: routeInfo.angle });
+      setNoteState({ ...noteState, value: routeInfo.note });
+    }, [routeInfo]
+  );
+
   return (
-    <div className='container w-75'>
+    <div className='container w-50'>
       <div className='container row row-cols-1 row-cols-md-2'>
-        <div className="col mb-4">
-          <h1>{routeInfo.name}</h1>
+        <div className={`col mb-4 ${isEdit ? 'pointer' : ''}`}
+          onClick={
+            () => {
+              if (isEdit) {
+                setNameState({
+                  ...nameState,
+                  isEdit: true
+                });
+              }
+            }
+          }>
+          {toggleTextInput(<h1>{nameState.value}</h1>,
+            renderInput(nameState, setNameState, nameState.value), nameState)}
         </div>
         <div className="col mb-4">
           <div className="btn-group pt-2" role='group'>
-            <button type='button' className='btn btn-info'>Edit</button>
-            <button type='button' className='btn btn-danger'>Delete</button>
+            {renderButton()}
           </div>
         </div>
       </div>
       <div className="container row row-cols-1 row-cols-md-2">
-        <div className='col mb-3'>
-          <p>V{routeInfo.grade} | {gradeConversion()}</p>
+        <div className={`col my-3 p-1 border-bottom border-secondary ${isEdit ? 'pointer' : ''}`}
+          onClick={
+            () => {
+              if (isEdit) {
+                setGradeState({
+                  ...gradeState,
+                  isEdit: true
+                });
+              }
+            }
+          }>
+          {toggleTextInput(<span>V{routeInfo.grade} | {gradeConversion()}</span>,
+            renderInput(gradeState, setGradeState, 'V-Scale Only'), gradeState)}
         </div>
-        <div className='col mb-3'>
-          <p>{attemptsConversion()}</p>
+        <div className={`col my-3 p-1 border-bottom border-secondary ${isEdit ? 'pointer' : ''}`}
+          onClick={
+            () => {
+              if (isEdit) {
+                setAttemptState({
+                  ...attemptState,
+                  isEdit: true
+                });
+              }
+            }
+          }>
+          {toggleTextInput(<span>{attemptsConversion()}</span>,
+            renderInput(attemptState, setAttemptState), attemptState)}
         </div>
       </div>
       <div className="container row row-cols-1 row-cols-md-2">
-        <div className='col mb-3'>
-          <p>{routeInfo.location}</p>
+        <div className={`col my-3 p-1 border-bottom border-secondary ${isEdit ? 'pointer' : ''}`}
+          onClick={
+            () => {
+              if (isEdit) {
+                setLocationState({
+                  ...locationState,
+                  isEdit: true
+                });
+              }
+            }
+          }>
+          {toggleTextInput(<span>{locationState.value}</span>,
+            renderInput(locationState, setLocationState), locationState)}
         </div>
-        <div className='col mb-3'>
-          <p>{showInOutdoor()}</p>
+        <div className={`col my-3 p-1 border-bottom border-secondary ${isEdit ? 'pointer' : ''}`}
+          onClick={
+            () => {
+              if (isEdit) {
+                setLocationTypeState({
+                  ...locationTypeState,
+                  isEdit: true
+                });
+              }
+            }
+          }>
+          {toggleTextInput(<span>{showInOutdoor()}</span>,
+            renderInput(locationTypeState, setLocationTypeState), locationTypeState)}
         </div>
       </div>
       <div className="container row row-cols-1 row-cols-md-2">
-        <div className='col mb-3'>
-          <p>Sent at {formatDate()}</p>
+        <div className={`col my-3 p-1 border-bottom border-secondary ${isEdit ? 'pointer' : ''}`}
+          onClick={
+            () => {
+              if (isEdit) {
+                setTimeState({
+                  ...timeState,
+                  isEdit: true
+                });
+              }
+            }
+          }>
+          {toggleTextInput(<span>Sent at {formatDate()}</span>,
+            renderInput(timeState, setTimeState), timeState)}
         </div>
-        <div className='col mb-3'>
-          <p>{routeInfo.angle ? `Angle: ${routeInfo.angle}°` : null}</p>
+        <div className={`col my-3 p-1 border-bottom border-secondary ${isEdit ? 'pointer' : ''}`}
+          onClick={
+            () => {
+              if (isEdit) {
+                setAngleState({
+                  ...angleState,
+                  isEdit: true
+                });
+              }
+            }
+          }>
+          {toggleTextInput(<span>{angleState.value ? `Angle: ${angleState.value}°` : null}</span>,
+            renderInput(angleState, setAngleState), angleState)}
         </div>
       </div>
       <div className="container row">
-        <div className="col">
-          <p>Notes:</p>
-          <p>{routeInfo.note}</p>
+        <div className="col p-1">
+          <span className={`my-3 ${isEdit ? 'pointer' : ''}`} onClick={
+            () => {
+              if (isEdit) {
+                setNoteState({
+                  ...noteState,
+                  isEdit: true
+                });
+              }
+            }
+          }>Notes:</span>
+          {toggleTextInput(<p className={`my-3 ${isEdit ? 'pointer' : ''}`}>{routeInfo.note || '--'}</p>,
+            renderInput(noteState, setNoteState), noteState)}
         </div>
       </div>
     </div>
