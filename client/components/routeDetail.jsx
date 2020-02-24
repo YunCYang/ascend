@@ -1,6 +1,176 @@
 import React from 'react';
 import { IdContext } from './app';
 
+export const gradeConversion = grade => {
+  const twoScales = { v: null, font: null };
+  if (!grade && grade !== 0) return null;
+  else {
+    // eslint-disable-next-line no-useless-escape
+    const vCheck = RegExp('^[v|V]([b|B]|[0-9]+)$');
+    // eslint-disable-next-line no-useless-escape
+    const fontCheck = RegExp('^[0-9]+(([a|A]|[b|B]|[c|C])[+]?)?$');
+    if (vCheck.test(grade)) {
+      twoScales.v = grade.toString().toUpperCase();
+      switch (twoScales.v) {
+        case 'VB':
+          twoScales.font = '3';
+          break;
+        case 'V0':
+          twoScales.font = '4';
+          break;
+        case 'V1':
+          twoScales.font = '5A/5B';
+          break;
+        case 'V2':
+          twoScales.font = '5C';
+          break;
+        case 'V3':
+          twoScales.font = '6A/6A+';
+          break;
+        case 'V4':
+          twoScales.font = '6B/6B+';
+          break;
+        case 'V5':
+          twoScales.font = '6C/6C+';
+          break;
+        case 'V6':
+          twoScales.font = '7A';
+          break;
+        case 'V7':
+          twoScales.font = '7A+';
+          break;
+        case 'V8':
+          twoScales.font = '7B/7B+';
+          break;
+        case 'V9':
+          twoScales.font = '7B+/7C';
+          break;
+        case 'V10':
+          twoScales.font = '7C+';
+          break;
+        case 'V11':
+          twoScales.font = '8A';
+          break;
+        case 'V12':
+          twoScales.font = '8A+';
+          break;
+        case 'V13':
+          twoScales.font = '8B';
+          break;
+        case 'V14':
+          twoScales.font = '8B+';
+          break;
+        case 'V15':
+          twoScales.font = '8C';
+          break;
+        case 'V16':
+          twoScales.font = '8C+';
+          break;
+        case 'V17':
+          twoScales.font = '9A';
+          break;
+      }
+    } else if (fontCheck.test(grade)) {
+      twoScales.font = grade.toString().toUpperCase();
+      if (twoScales.font.length === 1 && twoScales.font !== '3' && twoScales.font !== '4') {
+        twoScales.font += 'A';
+      }
+      const fontCopy = twoScales.font;
+      switch (fontCopy) {
+        case '3':
+        case '3A':
+        case '3A+':
+        case '3B':
+        case '3B+':
+        case '3C':
+        case '3C+':
+          twoScales.v = 'VB';
+          twoScales.font = '3';
+          break;
+        case '4':
+        case '4A':
+        case '4A+':
+        case '4B':
+        case '4B+':
+        case '4C':
+        case '4C+':
+          twoScales.v = 'V0';
+          twoScales.font = '4';
+          break;
+        case '5A':
+        case '5A+':
+        case '5B':
+        case '5B+':
+          twoScales.v = 'V1';
+          twoScales.font = '5A/5B';
+          break;
+        case '5C':
+        case '5C+':
+          twoScales.v = 'V2';
+          twoScales.font = '5C';
+          break;
+        case '6A':
+        case '6A+':
+          twoScales.v = 'V3';
+          twoScales.font = '6A/6A+';
+          break;
+        case '6B':
+        case '6B+':
+          twoScales.v = 'V4';
+          twoScales.font = '6B/6B+';
+          break;
+        case '6C':
+        case '6C+':
+          twoScales.v = 'V5';
+          twoScales.font = '6C/6C+';
+          break;
+        case '7A':
+          twoScales.v = 'V6';
+          break;
+        case '7A+':
+          twoScales.v = 'V7';
+          break;
+        case '7B':
+        case '7B+':
+          twoScales.v = 'V8';
+          twoScales.font = '7B/7B+';
+          break;
+        case '7C':
+          twoScales.v = 'V9';
+          twoScales.font = '7B+/7C';
+          break;
+        case '7C+':
+          twoScales.v = 'V10';
+          break;
+        case '8A':
+          twoScales.v = 'V11';
+          break;
+        case '8A+':
+          twoScales.v = 'V12';
+          break;
+        case '8B':
+          twoScales.v = 'V13';
+          break;
+        case '8B+':
+          twoScales.v = 'V14';
+          break;
+        case '8C':
+          twoScales.v = 'V15';
+          break;
+        case '8C+':
+          twoScales.v = 'V16';
+          break;
+        case '9A':
+          twoScales.v = 'V17';
+          break;
+      }
+    } else return 'wrong format';
+    if (twoScales.v && twoScales.font) return `${twoScales.v} | ${twoScales.font}`;
+    else if (twoScales.v) return twoScales.v;
+    else return twoScales.font;
+  }
+};
+
 const RouteDetail = props => {
   const id = React.useContext(IdContext);
   const [routeInfo, setRouteInfo] = React.useState({});
@@ -46,76 +216,13 @@ const RouteDetail = props => {
     isEdit: false
   });
 
-  const gradeConversion = () => {
-    let fontScale = null;
-    switch (routeInfo.grade) {
-      case '0':
-        fontScale = '4';
-        break;
-      case '1':
-        fontScale = '5';
-        break;
-      case '2':
-        fontScale = '5+';
-        break;
-      case '3':
-        fontScale = '6A/6A+';
-        break;
-      case '4':
-        fontScale = '6B/6B+';
-        break;
-      case '5':
-        fontScale = '6C/6C+';
-        break;
-      case '6':
-        fontScale = '7A';
-        break;
-      case '7':
-        fontScale = '7A+';
-        break;
-      case '8':
-        fontScale = '7B/7B+';
-        break;
-      case '9':
-        fontScale = '7B+/7C';
-        break;
-      case '10':
-        fontScale = '7C+';
-        break;
-      case '11':
-        fontScale = '8A';
-        break;
-      case '12':
-        fontScale = '8A+';
-        break;
-      case '13':
-        fontScale = '8B';
-        break;
-      case '14':
-        fontScale = '8B+';
-        break;
-      case '15':
-        fontScale = '8C';
-        break;
-      case '16':
-        fontScale = '8C+';
-        break;
-      case '17':
-        fontScale = '9A';
-        break;
-      default:
-        fontScale = null;
-    }
-    return fontScale;
-  };
-
   const attemptsConversion = () => {
-    if (routeInfo.attempts === 1) return 'Flash';
-    else return `${routeInfo.attempts} tries`;
+    if (attemptState.value === 1) return 'Flash';
+    else return `${attemptState.value} tries`;
   };
 
   const showInOutdoor = () => {
-    if (routeInfo.locationType) return 'Outdoor';
+    if (locationTypeState.value) return 'Outdoor';
     else return 'Indoor';
   };
 
@@ -282,7 +389,7 @@ const RouteDetail = props => {
               }
             }
           }>
-          {toggleTextInput(<span>V{routeInfo.grade} | {gradeConversion()}</span>,
+          {toggleTextInput(<span>{gradeConversion(gradeState.value)}</span>,
             renderInput(gradeState, setGradeState, 'V-Scale Only'), gradeState)}
         </div>
         <div className={`col my-3 p-1 border-bottom border-secondary ${isEdit ? 'pointer' : ''}`}
@@ -372,8 +479,10 @@ const RouteDetail = props => {
               }
             }
           }>Notes:</span>
-          {toggleTextInput(<p className={`my-3 ${isEdit ? 'pointer' : ''}`}>{routeInfo.note || '--'}</p>,
-            renderInput(noteState, setNoteState), noteState)}
+          {isEdit && noteState.isEdit ? <textarea className='form-control mt-2'
+            value={noteState.tempValue} placeholder={noteState.value} onChange={
+              e => setNoteState({ ...noteState, tempValue: e.target.value })
+            } /> : <p className={`my-3 ${isEdit ? 'pointer' : ''}`}>{routeInfo.note || '--'}</p>}
         </div>
       </div>
     </div>
