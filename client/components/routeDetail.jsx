@@ -197,7 +197,7 @@ const RouteDetail = props => {
   });
   const [locationTypeState, setLocationTypeState] = React.useState({
     value: routeInfo.locationType,
-    tempValue: '',
+    tempValue: false,
     isEdit: false
   });
   const [timeState, setTimeState] = React.useState({
@@ -227,8 +227,8 @@ const RouteDetail = props => {
   };
 
   const formatDate = () => {
-    if (routeInfo.completed) {
-      const timeArray = routeInfo.completed.split('');
+    if (timeState.value) {
+      const timeArray = timeState.value.split('');
       const dateArray = timeArray.slice(0, 10).join('').split('-');
       const usDateArray = [];
       usDateArray.push(dateArray[1]);
@@ -245,10 +245,7 @@ const RouteDetail = props => {
       return (
         <>
           <button type='button' className='btn btn-success' onClick={
-            () => {
-              updateValue();
-              // resetEdit();
-            }
+            () => updateValue()
           }>Confirm</button>
           <button type='button' className='btn btn-secondary' onClick={
             () => resetEdit()
@@ -273,15 +270,29 @@ const RouteDetail = props => {
   };
 
   const renderInput = (state, setState, placeholder) => {
-    return (
-      <>
-        <input type={setState === setTimeState ? 'date' : 'text'}
-          className='form-control mt-2' value={state.tempValue}
-          placeholder={placeholder} onChange={
-            e => setState({ ...state, tempValue: e.target.value })
-          } />
-      </>
-    );
+    if (setState === setLocationTypeState) {
+      return (
+        <div className="custom-control custom-switch">
+          <input type="checkbox" className="custom-control-input" id="locationType"
+            checked={locationTypeState.value} onChange={
+              e => setLocationTypeState({ ...locationTypeState, value: e.target.checked })
+            }/>
+          <label className="custom-control-label" htmlFor="locationType">
+            {locationTypeState.value ? 'Outdoor' : 'Indoor'}
+          </label>
+        </div>
+      );
+    } else {
+      return (
+        <>
+          <input type={setState === setTimeState ? 'date' : 'text'}
+            className='form-control mt-2' value={state.tempValue}
+            placeholder={placeholder} onChange={
+              e => setState({ ...state, tempValue: e.target.value })
+            } />
+        </>
+      );
+    }
   };
 
   const resetEdit = () => {
@@ -325,6 +336,10 @@ const RouteDetail = props => {
     }
   };
 
+  const submitHandler = () => {
+    return null;
+  };
+
   React.useEffect(
     () => props.setPath('/route/detail')
   );
@@ -356,135 +371,146 @@ const RouteDetail = props => {
 
   return (
     <div className='container w-50'>
-      <div className='container row row-cols-1 row-cols-md-2'>
-        <div className={`col mb-4 ${isEdit ? 'pointer' : ''}`}
-          onClick={
-            () => {
-              if (isEdit) {
-                setNameState({
-                  ...nameState,
-                  isEdit: true
-                });
+      <form className='needs-validation' noValidate onSubmit={submitHandler}>
+        <div className='container row row-cols-1 row-cols-md-2'>
+          <div className={`form-group col mb-4 ${isEdit ? 'pointer' : ''}`}
+            onClick={
+              () => {
+                if (isEdit) {
+                  setNameState({
+                    ...nameState,
+                    isEdit: true
+                  });
+                }
               }
-            }
-          }>
-          {toggleTextInput(<h1>{nameState.value}</h1>,
-            renderInput(nameState, setNameState, nameState.value), nameState)}
-        </div>
-        <div className="col mb-4">
-          <div className="btn-group pt-2" role='group'>
-            {renderButton()}
+            }>
+            {toggleTextInput(<h1>{nameState.value}</h1>,
+              renderInput(nameState, setNameState, nameState.value), nameState)}
+            <div className="invalid-feedback">
+              <span>Route name is required</span>
+            </div>
+          </div>
+          <div className="col mb-4">
+            <div className="btn-group pt-2" role='group'>
+              {renderButton()}
+            </div>
           </div>
         </div>
-      </div>
-      <div className="container row row-cols-1 row-cols-md-2">
-        <div className={`col my-3 p-1 border-bottom border-secondary ${isEdit ? 'pointer' : ''}`}
-          onClick={
-            () => {
-              if (isEdit) {
-                setGradeState({
-                  ...gradeState,
-                  isEdit: true
-                });
+        <div className="container row row-cols-1 row-cols-md-2">
+          <div className={`form-group col my-3 p-1 border-bottom border-secondary ${isEdit ? 'pointer' : ''}`}
+            onClick={
+              () => {
+                if (isEdit) {
+                  setGradeState({
+                    ...gradeState,
+                    isEdit: true
+                  });
+                }
               }
-            }
-          }>
-          {toggleTextInput(<span>{gradeConversion(gradeState.value)}</span>,
-            renderInput(gradeState, setGradeState, 'V-Scale Only'), gradeState)}
-        </div>
-        <div className={`col my-3 p-1 border-bottom border-secondary ${isEdit ? 'pointer' : ''}`}
-          onClick={
-            () => {
-              if (isEdit) {
-                setAttemptState({
-                  ...attemptState,
-                  isEdit: true
-                });
+            }>
+            {toggleTextInput(<span>{gradeConversion(gradeState.value)}</span>,
+              renderInput(gradeState, setGradeState, 'V-Scale or Font Scale'), gradeState)}
+            <div className="invalid-feedback"></div>
+          </div>
+          <div className={`form-group col my-3 p-1 border-bottom border-secondary ${isEdit ? 'pointer' : ''}`}
+            onClick={
+              () => {
+                if (isEdit) {
+                  setAttemptState({
+                    ...attemptState,
+                    isEdit: true
+                  });
+                }
               }
-            }
-          }>
-          {toggleTextInput(<span>{attemptsConversion()}</span>,
-            renderInput(attemptState, setAttemptState), attemptState)}
+            }>
+            {toggleTextInput(<span>{attemptsConversion()}</span>,
+              renderInput(attemptState, setAttemptState), attemptState)}
+            <div className="invalid-feedback"></div>
+          </div>
         </div>
-      </div>
-      <div className="container row row-cols-1 row-cols-md-2">
-        <div className={`col my-3 p-1 border-bottom border-secondary ${isEdit ? 'pointer' : ''}`}
-          onClick={
-            () => {
-              if (isEdit) {
-                setLocationState({
-                  ...locationState,
-                  isEdit: true
-                });
+        <div className="container row row-cols-1 row-cols-md-2">
+          <div className={`form-group col my-3 p-1 border-bottom border-secondary ${isEdit ? 'pointer' : ''}`}
+            onClick={
+              () => {
+                if (isEdit) {
+                  setLocationState({
+                    ...locationState,
+                    isEdit: true
+                  });
+                }
               }
-            }
-          }>
-          {toggleTextInput(<span>{locationState.value}</span>,
-            renderInput(locationState, setLocationState), locationState)}
-        </div>
-        <div className={`col my-3 p-1 border-bottom border-secondary ${isEdit ? 'pointer' : ''}`}
-          onClick={
-            () => {
-              if (isEdit) {
-                setLocationTypeState({
-                  ...locationTypeState,
-                  isEdit: true
-                });
+            }>
+            {toggleTextInput(<span>{locationState.value}</span>,
+              renderInput(locationState, setLocationState), locationState)}
+            <div className="invalid-feedback">
+              <span>Location is required</span>
+            </div>
+          </div>
+          <div className={`form-group col my-3 p-1 border-bottom border-secondary ${isEdit ? 'pointer' : ''}`}
+            onClick={
+              () => {
+                if (isEdit) {
+                  setLocationTypeState({
+                    ...locationTypeState,
+                    isEdit: true
+                  });
+                }
               }
-            }
-          }>
-          {toggleTextInput(<span>{showInOutdoor()}</span>,
-            renderInput(locationTypeState, setLocationTypeState), locationTypeState)}
+            }>
+            {toggleTextInput(<span>{showInOutdoor()}</span>,
+              renderInput(locationTypeState, setLocationTypeState), locationTypeState)}
+          </div>
         </div>
-      </div>
-      <div className="container row row-cols-1 row-cols-md-2">
-        <div className={`col my-3 p-1 border-bottom border-secondary ${isEdit ? 'pointer' : ''}`}
-          onClick={
-            () => {
-              if (isEdit) {
-                setTimeState({
-                  ...timeState,
-                  isEdit: true
-                });
+        <div className="container row row-cols-1 row-cols-md-2">
+          <div className={`form-group col my-3 p-1 border-bottom border-secondary ${isEdit ? 'pointer' : ''}`}
+            onClick={
+              () => {
+                if (isEdit) {
+                  setTimeState({
+                    ...timeState,
+                    isEdit: true
+                  });
+                }
               }
-            }
-          }>
-          {toggleTextInput(<span>Sent at {formatDate()}</span>,
-            renderInput(timeState, setTimeState), timeState)}
-        </div>
-        <div className={`col my-3 p-1 border-bottom border-secondary ${isEdit ? 'pointer' : ''}`}
-          onClick={
-            () => {
-              if (isEdit) {
-                setAngleState({
-                  ...angleState,
-                  isEdit: true
-                });
+            }>
+            {toggleTextInput(<span>Sent at {formatDate()}</span>,
+              renderInput(timeState, setTimeState), timeState)}
+          </div>
+          <div className={`form-group col my-3 p-1 border-bottom border-secondary ${isEdit ? 'pointer' : ''}`}
+            onClick={
+              () => {
+                if (isEdit) {
+                  setAngleState({
+                    ...angleState,
+                    isEdit: true
+                  });
+                }
               }
-            }
-          }>
-          {toggleTextInput(<span>{angleState.value ? `Angle: ${angleState.value}°` : null}</span>,
-            renderInput(angleState, setAngleState), angleState)}
+            }>
+            {toggleTextInput(<span>{angleState.value ? `Angle: ${angleState.value}°` : 'Angle: '}</span>,
+              renderInput(angleState, setAngleState), angleState)}
+            <div className="invalid-feedback"></div>
+          </div>
         </div>
-      </div>
-      <div className="container row">
-        <div className="col p-1">
-          <span className={`my-3 ${isEdit ? 'pointer' : ''}`} onClick={
-            () => {
-              if (isEdit) {
-                setNoteState({
-                  ...noteState,
-                  isEdit: true
-                });
+        <div className="container row">
+          <div className="col p-1">
+            <span className={`my-3 ${isEdit ? 'pointer' : ''}`} onClick={
+              () => {
+                if (isEdit) {
+                  setNoteState({
+                    ...noteState,
+                    isEdit: true
+                  });
+                }
               }
-            }
-          }>Notes:</span>
-          {isEdit && noteState.isEdit ? <textarea className='form-control mt-2'
-            value={noteState.tempValue} placeholder={noteState.value} onChange={
-              e => setNoteState({ ...noteState, tempValue: e.target.value })
-            } /> : <p className={`my-3 ${isEdit ? 'pointer' : ''}`}>{routeInfo.note || '--'}</p>}
+            }>Notes:</span>
+            {isEdit && noteState.isEdit ? <textarea className='form-control mt-2'
+              value={noteState.tempValue} placeholder={noteState.value} onChange={
+                e => setNoteState({ ...noteState, tempValue: e.target.value })
+              } /> : <p className={`my-3 ${isEdit ? 'pointer' : ''}`}>{noteState.value || '--'}</p>}
+          </div>
         </div>
-      </div>
+      </form>
     </div>
   );
 };
