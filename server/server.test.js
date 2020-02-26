@@ -171,23 +171,23 @@ describe('Initial Jest Test', () => {
       routeId: 1
     });
     expect(noNameRes.status).toBe(400);
-    expect(noNameRes.body.error).toBe('missing route name');
+    expect(noNameRes.body.error).toBe('missing name');
     const noGradeRes = await request.put('/api/route/update').send({
       routeId: 1,
-      routeName: 'New Route'
+      name: 'New Route'
     });
     expect(noGradeRes.status).toBe(400);
-    expect(noGradeRes.body.error).toBe('missing route grade');
+    expect(noGradeRes.body.error).toBe('missing grade');
     const noAttemptRes = await request.put('/api/route/update').send({
       routeId: 1,
-      routeName: 'New Route',
+      name: 'New Route',
       grade: 'V0 | 4'
     });
     expect(noAttemptRes.status).toBe(400);
     expect(noAttemptRes.body.error).toBe('missing attempts');
     const noLocationRes = await request.put('/api/route/update').send({
       routeId: 1,
-      routeName: 'New Route',
+      name: 'New Route',
       grade: 'V0 | 4',
       attempt: 1
     });
@@ -195,7 +195,7 @@ describe('Initial Jest Test', () => {
     expect(noLocationRes.body.error).toBe('missing location');
     const noLocationTypeRes = await request.put('/api/route/update').send({
       routeId: 1,
-      routeName: 'New Route',
+      name: 'New Route',
       grade: 'V0 | 4',
       attempt: 1,
       location: 'New Location'
@@ -204,7 +204,7 @@ describe('Initial Jest Test', () => {
     expect(noLocationTypeRes.body.error).toBe('missing location type');
     const noTimeRes = await request.put('/api/route/update').send({
       routeId: 1,
-      routeName: 'New Route',
+      name: 'New Route',
       grade: 'V0 | 4',
       attempt: 1,
       location: 'New Location',
@@ -212,6 +212,62 @@ describe('Initial Jest Test', () => {
     });
     expect(noTimeRes.status).toBe(400);
     expect(noTimeRes.body.error).toBe('missing completed time');
+    const invalidAttemptRes = await request.put('/api/route/update').send({
+      routeId: 1,
+      name: 'New Route',
+      grade: 'V0 | 4',
+      attempt: 'a',
+      location: 'New Location',
+      locationType: true,
+      completed: '2020-02-25'
+    });
+    expect(invalidAttemptRes.status).toBe(400);
+    expect(invalidAttemptRes.body.error).toBe('id a is not a valid positive integer');
+    const invalidLocationTypeRes = await request.put('/api/route/update').send({
+      routeId: 1,
+      name: 'New Route',
+      grade: 'V0 | 4',
+      attempt: 1,
+      location: 'New Location',
+      locationType: 'outdoor',
+      completed: '2020-02-25'
+    });
+    expect(invalidLocationTypeRes.status).toBe(400);
+    expect(invalidLocationTypeRes.body.error).toBe('outdoor is not a valid boolean');
+    const invalidDateRes = await request.put('/api/route/update').send({
+      routeId: 1,
+      name: 'New Route',
+      grade: 'V0 | 4',
+      attempt: 1,
+      location: 'New Location',
+      locationType: true,
+      completed: '2020-02'
+    });
+    expect(invalidDateRes.status).toBe(400);
+    expect(invalidDateRes.body.error).toBe('2020-02 is not a valid date');
+    const invalidAngleRes = await request.put('/api/route/update').send({
+      routeId: 1,
+      name: 'New Route',
+      grade: 'V0 | 4',
+      attempt: 1,
+      location: 'New Location',
+      locationType: true,
+      completed: '2020-02-25',
+      angle: 'a'
+    });
+    expect(invalidAngleRes.status).toBe(400);
+    expect(invalidAngleRes.body.error).toBe('id a is not a valid positive integer');
+    const successRes = await request.put('/api/route/update').send({
+      routeId: 1,
+      name: 'New Route',
+      grade: 'V0 | 4',
+      attempt: 1,
+      location: 'New Location',
+      locationType: true,
+      completed: '2020-02-25',
+      angle: 30
+    });
+    expect(successRes.status).toBe(201);
     done();
   });
 });

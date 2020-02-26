@@ -259,6 +259,20 @@ app.get('/api/route/detail/:userId/:routeId', (req, res, next) => {
     })
     .catch(err => next(err));
 });
+// edit and update routes
+app.put('/api/route/update', (req, res, next) => {
+  if (!req.body.routeId) next(new ClientError('missing route id', 400));
+  else if (!req.body.name) next(new ClientError('missing name', 400));
+  else if (!req.body.grade) next(new ClientError('missing grade', 400));
+  else if (!req.body.attempt) next(new ClientError('missing attempts', 400));
+  else if (!req.body.location) next(new ClientError('missing location', 400));
+  else if (!req.body.locationType) next(new ClientError('missing location type', 400));
+  else if (!req.body.completed) next(new ClientError('missing completed time', 400));
+  if (req.body.routeId) intTest(req.body.routeId, next);
+  if (req.body.attempt) intTest(req.body.attempt, next);
+  if (req.body.angle) intTest(req.body.angle, next);
+  if (typeof req.body.locationType !== 'boolean') next(new ClientError(`${req.body.locationType} is not a valid boolean`, 400));
+});
 
 app.get('/api/health-check', (req, res, next) => {
   db.query('select \'successfully connected\' as "message"')
