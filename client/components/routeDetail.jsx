@@ -5,10 +5,8 @@ export const gradeConversion = grade => {
   const twoScales = { v: null, font: null };
   if (!grade && grade !== 0) return null;
   else {
-    // eslint-disable-next-line no-useless-escape
-    const vCheck = RegExp('^[v|V]([b|B]|[0-9]+)$');
-    // eslint-disable-next-line no-useless-escape
-    const fontCheck = RegExp('^[0-9]+(([a|A]|[b|B]|[c|C])[+]?)?$');
+    const vCheck = RegExp('^[v|V]([b|B]|0|[1-9][0-9]*)$');
+    const fontCheck = RegExp('^(0|[1-9][0-9]*)(([a|A]|[b|B]|[c|C])[+]?)?$');
     if (vCheck.test(grade)) {
       twoScales.v = grade.toString().toUpperCase();
       switch (twoScales.v) {
@@ -175,6 +173,9 @@ const RouteDetail = props => {
   const id = React.useContext(IdContext);
   const [routeInfo, setRouteInfo] = React.useState({});
   const [isEdit, setIsEdit] = React.useState(false);
+  // const [gradeValidity, setGradeValidity] = React.useState(true);
+  // const [attemptValidity, setAttemptValidity] = React.useState(true);
+  // const [angleValidity, setAngleValidity] = React.useState(true);
   const [nameState, setNameState] = React.useState({
     value: routeInfo.name,
     tempValue: '',
@@ -217,7 +218,7 @@ const RouteDetail = props => {
   });
 
   const attemptsConversion = () => {
-    if (attemptState.value === 1) return 'Flash';
+    if (attemptState.value === 1 || attemptState.value === '1') return 'Flash';
     else return `${attemptState.value} tries`;
   };
 
@@ -245,7 +246,7 @@ const RouteDetail = props => {
       return (
         <>
           <button type='button' className='btn btn-success' onClick={
-            () => updateValue()
+            e => submitHandler(e)
           }>Confirm</button>
           <button type='button' className='btn btn-secondary' onClick={
             () => resetEdit()
@@ -269,7 +270,7 @@ const RouteDetail = props => {
     else return elem1;
   };
 
-  const renderInput = (state, setState, placeholder) => {
+  const renderInput = (state, setState, placeholder, id) => {
     if (setState === setLocationTypeState) {
       return (
         <div className="custom-control custom-switch">
@@ -287,7 +288,7 @@ const RouteDetail = props => {
         <>
           <input type={setState === setTimeState ? 'date' : 'text'}
             className='form-control mt-2' value={state.tempValue}
-            placeholder={placeholder} onChange={
+            placeholder={placeholder} id={id} onChange={
               e => setState({ ...state, tempValue: e.target.value })
             } />
         </>
@@ -336,8 +337,50 @@ const RouteDetail = props => {
     }
   };
 
-  const submitHandler = () => {
-    return null;
+  const compareRegexPattern = input => {
+    const gradeCheck = RegExp('^(([v|V]([b|B]|0|[1-9][0-9]*))|((0|[1-9][0-9]*)(([a|A]|[b|B]|[c|C])[+]?)?))$');
+    const numCheck = RegExp('^[1-9][0-9]*$');
+    if (input === 'grade' && gradeState.isEdit) {
+      if (!gradeCheck.test(document.querySelector('#grade').value)) {
+        // setGradeValidity(false);
+        document.querySelector('#grade').className = 'form-control mt-2 is-invalid';
+        return false;
+      } else {
+        // setGradeValidity(true);
+        document.querySelector('#grade').className = 'form-control mt-2';
+        return true;
+      }
+    } else if (input === 'attempt' && attemptState.isEdit) {
+      if (!numCheck.test(document.querySelector('#attempt').value)) {
+        // setAttemptValidity(false);
+        document.querySelector('#attempt').className = 'form-control mt-2 is-invalid';
+        return false;
+      } else {
+        // setAttemptValidity(true);
+        document.querySelector('#attempt').className = 'form-control mt-2';
+        return true;
+      }
+    } else if (input === 'angle' && angleState.isEdit) {
+      if (document.querySelector('#angle').value !== null &&
+        !numCheck.test(document.querySelector('#angle').value)) {
+        // setAngleValidity(false);
+        document.querySelector('#angle').className = 'form-control mt-2 is-invalid';
+        return false;
+      } else {
+        // setAngleValidity(true);
+        document.querySelector('#angle').className = 'form-control mt-2';
+        return true;
+      }
+    }
+    return true;
+  };
+
+  const submitHandler = e => {
+    e.preventDefault();
+    const checkGrade = compareRegexPattern('grade');
+    const checkAttempt = compareRegexPattern('attempt');
+    const checkAngle = compareRegexPattern('angle');
+    if (checkGrade && checkAttempt && checkAngle) updateValue();
   };
 
   React.useEffect(
@@ -377,18 +420,12 @@ const RouteDetail = props => {
             onClick={
               () => {
                 if (isEdit) {
-                  setNameState({
-                    ...nameState,
-                    isEdit: true
-                  });
+                  setNameState({ ...nameState, isEdit: true });
                 }
               }
             }>
             {toggleTextInput(<h1>{nameState.value}</h1>,
-              renderInput(nameState, setNameState, nameState.value), nameState)}
-            <div className="invalid-feedback">
-              <span>Route name is required</span>
-            </div>
+              renderInput(nameState, setNameState, nameState.value, 'name'), nameState)}
           </div>
           <div className="col mb-4">
             <div className="btn-group pt-2" role='group'>
@@ -401,64 +438,29 @@ const RouteDetail = props => {
             onClick={
               () => {
                 if (isEdit) {
-                  setGradeState({
-                    ...gradeState,
-                    isEdit: true
-                  });
+                  setGradeState({ ...gradeState, isEdit: true });
                 }
               }
             }>
             {toggleTextInput(<span>{gradeConversion(gradeState.value)}</span>,
-              renderInput(gradeState, setGradeState, 'V-Scale or Font Scale'), gradeState)}
-            <div className="invalid-feedback"></div>
-          </div>
-          <div className={`form-group col my-3 p-1 border-bottom border-secondary ${isEdit ? 'pointer' : ''}`}
-            onClick={
-              () => {
-                if (isEdit) {
-                  setAttemptState({
-                    ...attemptState,
-                    isEdit: true
-                  });
-                }
-              }
-            }>
-            {toggleTextInput(<span>{attemptsConversion()}</span>,
-              renderInput(attemptState, setAttemptState), attemptState)}
-            <div className="invalid-feedback"></div>
-          </div>
-        </div>
-        <div className="container row row-cols-1 row-cols-md-2">
-          <div className={`form-group col my-3 p-1 border-bottom border-secondary ${isEdit ? 'pointer' : ''}`}
-            onClick={
-              () => {
-                if (isEdit) {
-                  setLocationState({
-                    ...locationState,
-                    isEdit: true
-                  });
-                }
-              }
-            }>
-            {toggleTextInput(<span>{locationState.value}</span>,
-              renderInput(locationState, setLocationState), locationState)}
+              renderInput(gradeState, setGradeState, 'V-Scale or Font Scale', 'grade'), gradeState)}
             <div className="invalid-feedback">
-              <span>Location is required</span>
+              <span>Invalid Grade. Please provide V-scale or Font scale grade.</span>
             </div>
           </div>
           <div className={`form-group col my-3 p-1 border-bottom border-secondary ${isEdit ? 'pointer' : ''}`}
             onClick={
               () => {
                 if (isEdit) {
-                  setLocationTypeState({
-                    ...locationTypeState,
-                    isEdit: true
-                  });
+                  setAttemptState({ ...attemptState, isEdit: true });
                 }
               }
             }>
-            {toggleTextInput(<span>{showInOutdoor()}</span>,
-              renderInput(locationTypeState, setLocationTypeState), locationTypeState)}
+            {toggleTextInput(<span>{attemptsConversion()}</span>,
+              renderInput(attemptState, setAttemptState, '', 'attempt'), attemptState)}
+            <div className="invalid-feedback">
+              <span>Invalid attempts. Please provide only positive integer numbers.</span>
+            </div>
           </div>
         </div>
         <div className="container row row-cols-1 row-cols-md-2">
@@ -466,30 +468,50 @@ const RouteDetail = props => {
             onClick={
               () => {
                 if (isEdit) {
-                  setTimeState({
-                    ...timeState,
-                    isEdit: true
-                  });
+                  setLocationState({ ...locationState, isEdit: true });
                 }
               }
             }>
-            {toggleTextInput(<span>Sent at {formatDate()}</span>,
-              renderInput(timeState, setTimeState), timeState)}
+            {toggleTextInput(<span>{locationState.value}</span>,
+              renderInput(locationState, setLocationState, '', 'location'), locationState)}
           </div>
           <div className={`form-group col my-3 p-1 border-bottom border-secondary ${isEdit ? 'pointer' : ''}`}
             onClick={
               () => {
                 if (isEdit) {
-                  setAngleState({
-                    ...angleState,
-                    isEdit: true
-                  });
+                  setLocationTypeState({ ...locationTypeState, isEdit: true });
+                }
+              }
+            }>
+            {toggleTextInput(<span>{showInOutdoor()}</span>,
+              renderInput(locationTypeState, setLocationTypeState, '', 'locationType'), locationTypeState)}
+          </div>
+        </div>
+        <div className="container row row-cols-1 row-cols-md-2">
+          <div className={`form-group col my-3 p-1 border-bottom border-secondary ${isEdit ? 'pointer' : ''}`}
+            onClick={
+              () => {
+                if (isEdit) {
+                  setTimeState({ ...timeState, isEdit: true });
+                }
+              }
+            }>
+            {toggleTextInput(<span>Sent at {formatDate()}</span>,
+              renderInput(timeState, setTimeState, '', 'time'), timeState)}
+          </div>
+          <div className={`form-group col my-3 p-1 border-bottom border-secondary ${isEdit ? 'pointer' : ''}`}
+            onClick={
+              () => {
+                if (isEdit) {
+                  setAngleState({ ...angleState, isEdit: true });
                 }
               }
             }>
             {toggleTextInput(<span>{angleState.value ? `Angle: ${angleState.value}°` : 'Angle: '}</span>,
-              renderInput(angleState, setAngleState), angleState)}
-            <div className="invalid-feedback"></div>
+              renderInput(angleState, setAngleState, '', 'angle'), angleState)}
+            <div className="invalid-feedback">
+              <span>Invalid angle. Please provide only positive integer numbers.</span>
+            </div>
           </div>
         </div>
         <div className="container row">
@@ -497,15 +519,13 @@ const RouteDetail = props => {
             <span className={`my-3 ${isEdit ? 'pointer' : ''}`} onClick={
               () => {
                 if (isEdit) {
-                  setNoteState({
-                    ...noteState,
-                    isEdit: true
-                  });
+                  setNoteState({ ...noteState, isEdit: true });
                 }
               }
             }>Notes:</span>
             {isEdit && noteState.isEdit ? <textarea className='form-control mt-2'
-              value={noteState.tempValue} placeholder={noteState.value} onChange={
+              value={noteState.tempValue} placeholder={noteState.value} id='note'
+              onChange={
                 e => setNoteState({ ...noteState, tempValue: e.target.value })
               } /> : <p className={`my-3 ${isEdit ? 'pointer' : ''}`}>{noteState.value || '--'}</p>}
           </div>

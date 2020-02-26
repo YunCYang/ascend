@@ -162,4 +162,56 @@ describe('Initial Jest Test', () => {
     expect(successRes.status).toBe(200);
     done();
   });
+
+  it('update route', async done => {
+    const emptyRes = await request.put('/api/route/update').send({});
+    expect(emptyRes.status).toBe(400);
+    expect(emptyRes.body.error).toBe('missing route id');
+    const noNameRes = await request.put('/api/route/update').send({
+      routeId: 1
+    });
+    expect(noNameRes.status).toBe(400);
+    expect(noNameRes.body.error).toBe('missing route name');
+    const noGradeRes = await request.put('/api/route/update').send({
+      routeId: 1,
+      routeName: 'New Route'
+    });
+    expect(noGradeRes.status).toBe(400);
+    expect(noGradeRes.body.error).toBe('missing route grade');
+    const noAttemptRes = await request.put('/api/route/update').send({
+      routeId: 1,
+      routeName: 'New Route',
+      grade: 'V0 | 4'
+    });
+    expect(noAttemptRes.status).toBe(400);
+    expect(noAttemptRes.body.error).toBe('missing attempts');
+    const noLocationRes = await request.put('/api/route/update').send({
+      routeId: 1,
+      routeName: 'New Route',
+      grade: 'V0 | 4',
+      attempt: 1
+    });
+    expect(noLocationRes.status).toBe(400);
+    expect(noLocationRes.body.error).toBe('missing location');
+    const noLocationTypeRes = await request.put('/api/route/update').send({
+      routeId: 1,
+      routeName: 'New Route',
+      grade: 'V0 | 4',
+      attempt: 1,
+      location: 'New Location'
+    });
+    expect(noLocationTypeRes.status).toBe(400);
+    expect(noLocationTypeRes.body.error).toBe('missing location type');
+    const noTimeRes = await request.put('/api/route/update').send({
+      routeId: 1,
+      routeName: 'New Route',
+      grade: 'V0 | 4',
+      attempt: 1,
+      location: 'New Location',
+      locationType: true
+    });
+    expect(noTimeRes.status).toBe(400);
+    expect(noTimeRes.body.error).toBe('missing completed time');
+    done();
+  });
 });
