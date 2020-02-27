@@ -24,6 +24,26 @@ const intTest = (id, next) => {
   } else return null;
 };
 
+const dateTest = (date, next) => {
+  // eslint-disable-next-line no-useless-escape
+  const dateRegex = RegExp('^(19|20)[0-9][0-9]\-(0[1-9]|1[0-2])\-(0[1-9]|(1|2)[0-9]|3(0|1))');
+  if (dateRegex.test(date)) {
+    const dateArray = date.split('').slice(0, 10).join('').split('-');
+    const dateNumArray = dateArray.map(item => parseInt(item));
+    if (!dateNumArray.some(e => isNaN(e))) {
+      if ((dateNumArray[1] === 4 || dateNumArray[1] === 6 || dateNumArray[1] === 9 ||
+        dateNumArray[1] === 11) && dateNumArray[2] === 31) return false;
+      else if (dateNumArray[1] === 2) {
+        if ((dateNumArray[0] % 4 === 0 && !dateNumArray[0] % 100 === 0) &&
+          dateNumArray[2] === 30) return false;
+        else if (!(dateNumArray[0] % 4 === 0 && !dateNumArray[0] % 100 === 0) &&
+          dateNumArray[2] === 29) return false;
+      }
+      return true;
+    }
+  } else return false;
+};
+
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -271,7 +291,10 @@ app.put('/api/route/update', (req, res, next) => {
   if (req.body.routeId) intTest(req.body.routeId, next);
   if (req.body.attempt) intTest(req.body.attempt, next);
   if (req.body.angle) intTest(req.body.angle, next);
-  if (typeof req.body.locationType !== 'boolean') next(new ClientError(`${req.body.locationType} is not a valid boolean`, 400));
+  if (req.body.locationType && typeof req.body.locationType !== 'boolean') next(new ClientError(`${req.body.locationType} is not a valid boolean`, 400));
+  if (req.body.completed) {
+    if (!dateTest(req.body.completed)) next(new ClientError(`${req.body.completed} is not a valid date`, 400));
+  }
 });
 
 app.get('/api/health-check', (req, res, next) => {
