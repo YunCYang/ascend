@@ -170,9 +170,6 @@ const RouteDetail = props => {
   const id = React.useContext(IdContext);
   const [routeInfo, setRouteInfo] = React.useState({});
   const [isEdit, setIsEdit] = React.useState(false);
-  // const [gradeValidity, setGradeValidity] = React.useState(true);
-  // const [attemptValidity, setAttemptValidity] = React.useState(true);
-  // const [angleValidity, setAngleValidity] = React.useState(true);
   const [nameState, setNameState] = React.useState({
     value: routeInfo.name,
     tempValue: '',
@@ -335,36 +332,30 @@ const RouteDetail = props => {
   };
 
   const compareRegexPattern = input => {
-    const gradeCheck = RegExp('^(([v|V]([b|B]|0|[1-9][0-9]*))|((0|[1-9][0-9]*)(([a|A]|[b|B]|[c|C])[+]?)?))$');
+    const gradeCheck = RegExp('^(([v|V]([0-9]|1[0-7]))|([3-9])(([a|A]|[b|B]|[c|C])[+]?)?)$');
     const numCheck = RegExp('^[1-9][0-9]*$');
     if (input === 'grade' && gradeState.isEdit) {
       if (!gradeCheck.test(document.querySelector('#grade').value)) {
-        // setGradeValidity(false);
         document.querySelector('#grade').className = 'form-control mt-2 is-invalid';
         return false;
       } else {
-        // setGradeValidity(true);
         document.querySelector('#grade').className = 'form-control mt-2';
         return true;
       }
     } else if (input === 'attempt' && attemptState.isEdit) {
       if (!numCheck.test(document.querySelector('#attempt').value)) {
-        // setAttemptValidity(false);
         document.querySelector('#attempt').className = 'form-control mt-2 is-invalid';
         return false;
       } else {
-        // setAttemptValidity(true);
         document.querySelector('#attempt').className = 'form-control mt-2';
         return true;
       }
     } else if (input === 'angle' && angleState.isEdit) {
       if (document.querySelector('#angle').value !== null &&
         !numCheck.test(document.querySelector('#angle').value)) {
-        // setAngleValidity(false);
         document.querySelector('#angle').className = 'form-control mt-2 is-invalid';
         return false;
       } else {
-        // setAngleValidity(true);
         document.querySelector('#angle').className = 'form-control mt-2';
         return true;
       }
@@ -372,12 +363,40 @@ const RouteDetail = props => {
     return true;
   };
 
+  const gradeInitProcess = grade => {
+    const processedGrade = gradeConversion(grade);
+    if (isNaN(processedGrade[2])) return processedGrade[1];
+    else return processedGrade[1] + processedGrade[2];
+  };
+
   const submitHandler = e => {
     e.preventDefault();
     const checkGrade = compareRegexPattern('grade');
     const checkAttempt = compareRegexPattern('attempt');
     const checkAngle = compareRegexPattern('angle');
-    if (checkGrade && checkAttempt && checkAngle) updateValue();
+    if (checkGrade && checkAttempt && checkAngle) {
+      updateValue();
+      const init = {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          routeId: props.routeId,
+          name: nameState.tempValue ? nameState.tempValue : nameState.value,
+          grade: gradeState.tempValue ? gradeInitProcess(gradeState.tempValue) : gradeInitProcess(gradeState.value),
+          attempt: attemptState.tempValue ? attemptState.tempValue : attemptState.value,
+          location: locationState.tempValue ? locationState.tempValue : locationState.value,
+          locationType: locationTypeState.tempValue ? locationTypeState.tempValue : locationTypeState.value,
+          completed: timeState.tempValue ? timeState.tempValue : timeState.value,
+          angle: angleState.tempValue ? angleState.tempValue : angleState.value,
+          note: noteState.tempValue ? noteState.tempValue : noteState.value
+        })
+      };
+      fetch('/api/route/update', init)
+        .then(res => res.json())
+        .then(res => false);
+    }
   };
 
   React.useEffect(
@@ -399,7 +418,7 @@ const RouteDetail = props => {
   React.useEffect(
     () => {
       setNameState({ ...nameState, value: routeInfo.name });
-      setGradeState({ ...gradeState, value: routeInfo.grade });
+      setGradeState({ ...gradeState, value: 'v' + routeInfo.grade });
       setAttemptState({ ...attemptState, value: routeInfo.attempts });
       setLocationState({ ...locationState, value: routeInfo.location });
       setLocationTypeState({ ...locationTypeState, value: routeInfo.locationType });
@@ -524,7 +543,13 @@ const RouteDetail = props => {
               value={noteState.tempValue} placeholder={noteState.value} id='note'
               onChange={
                 e => setNoteState({ ...noteState, tempValue: e.target.value })
-              } /> : <p className={`my-3 ${isEdit ? 'pointer' : ''}`}>{noteState.value || '--'}</p>}
+              } /> : <p className={`my-3 ${isEdit ? 'pointer' : ''}`} onClick={
+              () => {
+                if (isEdit) {
+                  setNoteState({ ...noteState, isEdit: true });
+                }
+              }
+            }>{noteState.value || '--'}</p>}
           </div>
         </div>
       </form>

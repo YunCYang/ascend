@@ -85,9 +85,4 @@ describe('routeDetail grade conversion test', () => {
     const uppercaseV = gradeConversion('V3');
     expect(uppercaseV).toBe('V3 | 6A/6A+');
   });
-
-  it('VB', () => {
-    const vb = gradeConversion('vb');
-    expect(vb).toBe('VB | 3');
-  });
 });
