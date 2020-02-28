@@ -5,14 +5,11 @@ export const gradeConversion = grade => {
   const twoScales = { v: null, font: null };
   if (!grade && grade !== 0) return null;
   else {
-    const vCheck = RegExp('^[v|V]([b|B]|0|[1-9][0-9]*)$');
-    const fontCheck = RegExp('^(0|[1-9][0-9]*)(([a|A]|[b|B]|[c|C])[+]?)?$');
+    const vCheck = RegExp('^[v|V]([0-9]|1[0-7])$');
+    const fontCheck = RegExp('^([3-9])(([a|A]|[b|B]|[c|C])[+]?)?$');
     if (vCheck.test(grade)) {
       twoScales.v = grade.toString().toUpperCase();
       switch (twoScales.v) {
-        case 'VB':
-          twoScales.font = '3';
-          break;
         case 'V0':
           twoScales.font = '4';
           break;
@@ -82,9 +79,6 @@ export const gradeConversion = grade => {
         case '3B+':
         case '3C':
         case '3C+':
-          twoScales.v = 'VB';
-          twoScales.font = '3';
-          break;
         case '4':
         case '4A':
         case '4A+':
@@ -159,13 +153,16 @@ export const gradeConversion = grade => {
           twoScales.v = 'V16';
           break;
         case '9A':
+        case '9A+':
+        case '9B':
+        case '9B+':
+        case '9C':
+        case '9C+':
           twoScales.v = 'V17';
           break;
       }
     } else return 'wrong format';
-    if (twoScales.v && twoScales.font) return `${twoScales.v} | ${twoScales.font}`;
-    else if (twoScales.v) return twoScales.v;
-    else return twoScales.font;
+    return `${twoScales.v} | ${twoScales.font}`;
   }
 };
 

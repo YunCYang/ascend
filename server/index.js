@@ -295,6 +295,39 @@ app.put('/api/route/update', (req, res, next) => {
   if (req.body.completed) {
     if (!dateTest(req.body.completed)) next(new ClientError(`${req.body.completed} is not a valid date`, 400));
   }
+  const checkRouteIdSql = `
+    select "routeId"
+      from "route"
+     where "routeId" = $1;
+  `;
+  const updateRouteSql = `
+    update "route"
+       set "name" = $1,
+           "grade" = $2,
+           "attempts" = $3,
+           "location" = $4,
+           "locationType" = $5,
+           "completed" = $6,
+           "angle" = $7,
+           "note" = $8
+     where "routeId" = $9
+     returning *;
+  `;
+  const checkRouteIdValue = [parseInt(req.body.routeId)];
+  const updateRouteValue = [req.body.name, parseInt(req.body.grade),
+    parseInt(req.body.attempt), req.body.location, req.body.locationType,
+    req.body.completed, req.body.angle === 'null' ? null : parseInt(req.body.angle),
+    req.body.note, parseInt(req.body.routeId)];
+  db.query(checkRouteIdSql, checkRouteIdValue)
+    .then(checkRouteIdResult => {
+      if (!checkRouteIdResult.rows[0]) next(new ClientError(`route id ${req.body.routeId} does not exist`, 404));
+      else {
+        db.query(updateRouteSql, updateRouteValue)
+          .then(updateResult => res.status(201).json(updateResult.rows[0]))
+          .catch(err => next(err));
+      }
+    })
+    .catch(err => next(err));
 });
 
 app.get('/api/health-check', (req, res, next) => {

@@ -219,7 +219,9 @@ describe('Initial Jest Test', () => {
       attempt: 'a',
       location: 'New Location',
       locationType: true,
-      completed: '2020-02-25'
+      completed: '2020-02-25',
+      angle: null,
+      note: null
     });
     expect(invalidAttemptRes.status).toBe(400);
     expect(invalidAttemptRes.body.error).toBe('id a is not a valid positive integer');
@@ -230,7 +232,9 @@ describe('Initial Jest Test', () => {
       attempt: 1,
       location: 'New Location',
       locationType: 'outdoor',
-      completed: '2020-02-25'
+      completed: '2020-02-25',
+      angle: null,
+      note: null
     });
     expect(invalidLocationTypeRes.status).toBe(400);
     expect(invalidLocationTypeRes.body.error).toBe('outdoor is not a valid boolean');
@@ -241,7 +245,9 @@ describe('Initial Jest Test', () => {
       attempt: 1,
       location: 'New Location',
       locationType: true,
-      completed: '2020-02'
+      completed: '2020-02',
+      angle: null,
+      note: null
     });
     expect(invalidDateRes.status).toBe(400);
     expect(invalidDateRes.body.error).toBe('2020-02 is not a valid date');
@@ -253,7 +259,8 @@ describe('Initial Jest Test', () => {
       location: 'New Location',
       locationType: true,
       completed: '2020-02-25',
-      angle: 'a'
+      angle: 'a',
+      note: null
     });
     expect(invalidAngleRes.status).toBe(400);
     expect(invalidAngleRes.body.error).toBe('id a is not a valid positive integer');
@@ -265,7 +272,8 @@ describe('Initial Jest Test', () => {
       location: 'New Location',
       locationType: true,
       completed: '2020-02-25',
-      angle: 30
+      angle: 30,
+      note: null
     });
     expect(successRes.status).toBe(201);
     done();
