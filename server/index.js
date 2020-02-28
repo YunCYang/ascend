@@ -329,6 +329,47 @@ app.put('/api/route/update', (req, res, next) => {
     })
     .catch(err => next(err));
 });
+// delete route
+app.delete('/api/route/delete', (req, res, next) => {
+  if (!req.body.userId) next(new ClientError('missing user id', 400));
+  else if (!req.body.routeId) next(new ClientError('missing route id', 400));
+  if (req.body.userId) intTest(req.body.userId, next);
+  if (req.body.routeId) intTest(req.body.routeId, next);
+  const checkUserIdSql = `
+    select "userId"
+      from "route"
+     where "userId" = $1;
+  `;
+  const checkRouteIdSql = `
+    select "routeId"
+      from "route"
+     where "routeId" = $1 and "userId" = $2;
+  `;
+  const deleteRouteSql = `
+    delete from "route"
+     where "routeId" = $1;
+  `;
+  const checkUserIdValue = [parseInt(req.body.userId)];
+  const checkRouteIdValue = [parseInt(req.body.routeId), parseInt(req.body.userId)];
+  const deleteRouteValue = [parseInt(req.body.routeId)];
+  db.query(checkUserIdSql, checkUserIdValue)
+    .then(checkUserResult => {
+      if (!checkUserResult.rows[0]) next(new ClientError(`user id ${req.body.userId} does not exist`, 404));
+      else {
+        db.query(checkRouteIdSql, checkRouteIdValue)
+          .then(checkRouteResult => {
+            if (!checkRouteResult.rows[0]) next(new ClientError(`route id ${req.body.routeId} does not exist`, 404));
+            else {
+              db.query(deleteRouteSql, deleteRouteValue)
+                .then(deleteRouteResult => res.status(204).json([]))
+                .catch(err => next(err));
+            }
+          })
+          .catch(err => next(err));
+      }
+    })
+    .catch(err => next(err));
+});
 
 app.get('/api/health-check', (req, res, next) => {
   db.query('select \'successfully connected\' as "message"')

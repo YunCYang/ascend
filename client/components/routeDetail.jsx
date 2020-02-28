@@ -1,4 +1,5 @@
 import React from 'react';
+import { withRouter } from 'react-router-dom';
 import { IdContext } from './app';
 
 export const gradeConversion = grade => {
@@ -253,7 +254,9 @@ const RouteDetail = props => {
           <button type='button' className='btn btn-info' onClick={
             () => setIsEdit(true)
           }>Edit</button>
-          <button type='button' className='btn btn-danger'>Delete</button>
+          <button type='button' className='btn btn-danger' onClick={
+            () => deleteRoute()
+          }>Delete</button>
         </>
       );
     }
@@ -397,6 +400,21 @@ const RouteDetail = props => {
         .then(res => res.json())
         .then(res => false);
     }
+  };
+
+  const deleteRoute = () => {
+    const init = {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userId: id.id,
+        routeId: props.routeId
+      })
+    };
+    fetch('/api/route/delete', init)
+      .then(res => props.history.push('/route'));
   };
 
   React.useEffect(
@@ -557,4 +575,4 @@ const RouteDetail = props => {
   );
 };
 
-export default RouteDetail;
+export default withRouter(RouteDetail);
