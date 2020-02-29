@@ -1,7 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { IdContext } from './app';
 
 const RouteCard = props => {
+  const id = React.useContext(IdContext);
   const gradeConversion = () => {
     let fontScale = null;
     switch (props.route.grade) {
@@ -116,6 +118,27 @@ const RouteCard = props => {
     return borderClass;
   };
 
+  const deleteRoute = () => {
+    const init = {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userId: id.id,
+        routeId: props.route.routeId
+      })
+    };
+    fetch('/api/route/delete', init)
+      .then(res => {
+        let index = null;
+        for (let i = 0; i < props.routeList.length; i++) {
+          if (props.routeList[i].routeId === props.route.routeId) index = i;
+        }
+        props.setRouteList(props.routeList.splice(index, 1));
+      });
+  };
+
   return (
     <div className='col mt-4'>
       <div className={`card ${paintBorder()}`}>
@@ -135,7 +158,9 @@ const RouteCard = props => {
               <span>{props.route.location}</span>
             </div>
             <div>
-              <i className="fas fa-times-circle fa-lg"></i>
+              <i className="fas fa-times-circle fa-lg pointer" onClick={
+                () => deleteRoute()
+              }></i>
             </div>
           </div>
           <footer className='container mt-2'><small>{formatDate()}</small></footer>

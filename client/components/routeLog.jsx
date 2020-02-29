@@ -23,7 +23,8 @@ const RouteLog = props => {
 
   const createRouteCard = () => {
     if (routeList.length) {
-      return routeList.map((item, index) => <RouteCard key={`route${index}`} route={item} />);
+      return routeList.map((item, index) => <RouteCard key={`route${index}`} route={item}
+        routeList={routeList} setRouteList={setRouteList}/>);
     } else return null;
   };
 
