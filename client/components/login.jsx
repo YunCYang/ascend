@@ -61,6 +61,7 @@ const LogIn = props => {
       fetch('/api/auth/login', init)
         .then(res => res.json())
         .then(res => {
+          sessionStorage.setItem('id', res.userId);
           checkIsValid(false, res.status, res.userId);
         });
     }

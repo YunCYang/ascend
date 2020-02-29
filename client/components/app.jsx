@@ -8,7 +8,9 @@ import Stat from './stat';
 export const IdContext = React.createContext(null);
 
 const App = () => {
-  const [id, setId] = React.useState(null);
+  const [id, setId] = React.useState(
+    sessionStorage.getItem('id') || null
+  );
 
   return (
     <IdContext.Provider value={{ id, setId }}>
@@ -17,7 +19,7 @@ const App = () => {
           <>
             <Header />
             <div className="main">
-              <Route exact path="/" render={() => <RRoute />} />
+              <Route path="/route" render={() => <RRoute />} />
               <Route path="/account" render={() => <Account />} />
               <Route path="/stat" render={() => <Stat />} />
             </div>

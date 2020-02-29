@@ -8,6 +8,9 @@ const Header = props => {
   React.useEffect(
     () => {
       if (!id.id && props.location.pathname[1] !== 'a') props.history.push('/account');
+      else if (id.id && (props.location.pathname[1] === 'a' || props.location.pathname === '/')) {
+        props.history.push('/route');
+      }
     }
   );
 
@@ -15,7 +18,10 @@ const Header = props => {
     if (id.id) {
       return <button type='button' className='btn btn-outline-danger'
         onClick={
-          () => id.setId(null)
+          () => {
+            sessionStorage.removeItem('id');
+            id.setId(null);
+          }
         }>Log Out</button>;
     } else {
       return <button type='button' className='btn btn-outline-success'
@@ -31,7 +37,7 @@ const Header = props => {
         <Link to='/' className='navbar-brand'>Ascend</Link>
         <ul className="nav">
           <li className="nav-item">
-            <Link to='/' className='nav-link'>Route</Link>
+            <Link to='/route' className='nav-link'>Route</Link>
           </li>
           <li className="nav-item">
             <Link to='/stat' className='nav-link'>Stat</Link>

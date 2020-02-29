@@ -2,9 +2,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const UpdatePassword = props => {
-  // props.userId = 8;
-  // props.token = 'test2';
-  // props.token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTU4MjIyNDA5MiwiZXhwIjoxNTgyMjI3NjkyfQ.ZIjMzN3iwoeCNqNXjjFX9HjESD-jayA4XBzo_X_6Q1I';
   const [password, setPassword] = React.useState('');
   const [confirmPassword, setConfirmPassword] = React.useState('');
   const [passwordValidation, setPasswordValidation] = React.useState(62);
@@ -16,19 +13,6 @@ const UpdatePassword = props => {
   const lcCheck = RegExp('(?=.*[a-z])');
   const numberCheck = RegExp('(?=.*[0-9])');
   const spcCheck = RegExp('(?=.*[!@#$%^&*_=+-])');
-
-  // let processedToken = null;
-  // const tokenArray = props.token.split('');
-  // for (let i = 0; i < tokenArray.length; i++) {
-  //   if (i + 5 < tokenArray.length) {
-  //     if (tokenArray[i] === 'd' && tokenArray[i + 1] === 'o' &&
-  //       tokenArray[i + 2] === 't' && tokenArray[i + 3] === 'd' &&
-  //       tokenArray[i + 4] === 'o' && tokenArray[i + 5] === 't') {
-  //       tokenArray.splice(i, 6, '.');
-  //     }
-  //   }
-  // }
-  // processedToken = tokenArray.join('');
 
   React.useEffect(
     () => props.setPath('/account/password/reset')
@@ -107,27 +91,6 @@ const UpdatePassword = props => {
           document.querySelector('#password').className = 'form-control is-valid';
           document.querySelector('#confirmPassword').className = 'form-control is-valid';
         });
-      // fetch('/api/auth/signup', init)
-      //   .then(res => res.json())
-      //   .then(res => {
-      //     if (res.status === 400) {
-      //       if (res.error === `user name ${userName} already exists`) {
-      //         let userNameValCopy = userNameValidation | 1;
-      //         if (userNameValCopy & 16) userNameValCopy = userNameValCopy ^ 16;
-      //         setUserNameValidation(userNameValCopy);
-      //         document.querySelector('#userName').className = 'form-control is-invalid';
-      //       } else {
-      //         let emailValCopy = emailValidation | 1;
-      //         if (emailValCopy & 4) emailValCopy = emailValCopy ^ 4;
-      //         setEmailValidation(emailValCopy);
-      //         document.querySelector('#email').className = 'form-control is-invalid';
-      //       }
-      //     } else if (res.status === 201) {
-      //       document.querySelector('#password').className = 'form-control is-valid';
-      //       document.querySelector('#confirmPassword').className = 'form-control is-valid';
-      //       props.history.push('/');
-      //     }
-      //   });
     }
   };
 

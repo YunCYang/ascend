@@ -1,8 +1,14 @@
 import React from 'react';
 
-const RouteAdd = () => {
+const RouteAdd = props => {
+  React.useEffect(
+    () => props.setPath('/route/add')
+  );
+
   return (
-    <div></div>
+    <div>
+      <h1>Add Route</h1>
+    </div>
   );
 };
 

@@ -22,11 +22,29 @@ div.main .nav {
   font-family: "Caveat", cursive;
   font-size: 1.2em;
 }
-div.main div.account h1 {
+div.main div.section h1 {
   font-family: "Caveat", cursive;
 }
-div.main div.account form {
+div.main div.section form {
   font-family: "Cabin", sans-serif;
+}
+div.main div.section div.card {
+  font-family: "Cabin", sans-serif;
+}
+div.main div.section div.card a {
+  color: #000;
+  text-decoration: none;
+}
+div.main div.section div.card .card-title {
+  cursor: pointer;
+}
+
+.pointer {
+  cursor: pointer;
+}
+
+input[type=date]::-webkit-inner-spin-button {
+  display: none;
 }
 
 @media screen and (max-width: 991px) {
@@ -34,7 +52,7 @@ div.main div.account form {
     width: 50% !important;
   }
 }
-@media screen and (max-width: 480px) {
+@media screen and (max-width: 500px) {
   header nav .navbar-brand {
     font-size: 1.5em;
   }
@@ -45,18 +63,25 @@ div.main div.account form {
     padding: 0.25rem 0.3rem;
     font-size: 0.55rem;
   }
+
+  .card-body h5 {
+    font-size: 1.2em;
+  }
+  .card-body h6 {
+    font-size: 0.8em;
+  }
 }
 @media screen and (max-width: 420px) {
   div.main div.account .w-25 {
     width: 75% !important;
   }
 }
-@media screen and (max-width: 350px) {
+@media screen and (max-width: 370px) {
   header nav .navbar-brand {
-    font-size: 1.5em;
+    font-size: 1.25em;
   }
   header nav .nav-item .nav-link {
-    font-size: 0.75em;
+    font-size: 0.7em;
   }
   header nav button.btn {
     padding: 0.25rem 0.3rem;

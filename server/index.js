@@ -24,6 +24,26 @@ const intTest = (id, next) => {
   } else return null;
 };
 
+const dateTest = (date, next) => {
+  // eslint-disable-next-line no-useless-escape
+  const dateRegex = RegExp('^(19|20)[0-9][0-9]\-(0[1-9]|1[0-2])\-(0[1-9]|(1|2)[0-9]|3(0|1))');
+  if (dateRegex.test(date)) {
+    const dateArray = date.split('').slice(0, 10).join('').split('-');
+    const dateNumArray = dateArray.map(item => parseInt(item));
+    if (!dateNumArray.some(e => isNaN(e))) {
+      if ((dateNumArray[1] === 4 || dateNumArray[1] === 6 || dateNumArray[1] === 9 ||
+        dateNumArray[1] === 11) && dateNumArray[2] === 31) return false;
+      else if (dateNumArray[1] === 2) {
+        if ((dateNumArray[0] % 4 === 0 && !dateNumArray[0] % 100 === 0) &&
+          dateNumArray[2] === 30) return false;
+        else if (!(dateNumArray[0] % 4 === 0 && !dateNumArray[0] % 100 === 0) &&
+          dateNumArray[2] === 29) return false;
+      }
+      return true;
+    }
+  } else return false;
+};
+
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -201,18 +221,36 @@ app.put('/api/auth/update', (req, res, next) => {
     })
     .catch(err => next(err));
 });
-// get all routes
-app.get('/api/route/all', (req, res, next) => {
-  const sql = `
-    select *
-      from "user";
+// get route from user
+app.get('/api/route/all/:userId', (req, res, next) => {
+  intTest(req.params.userId, next);
+  const checkUserSql = `
+    select "userId"
+      from "route"
+     where "userId" = $1;
   `;
-  db.query(sql)
-    .then(result => res.status(200).json(result.rows))
+  const getRouteSql = `
+    select "routeId", "name", "grade", "location", "completed"
+      from "route"
+     where "userId" = $1
+     order by "completed" DESC;
+  `;
+  const userValue = [parseInt(req.params.userId)];
+  db.query(checkUserSql, userValue)
+    .then(userResult => {
+      if (!userResult.rows[0]) next(new ClientError(`user of id ${req.params.userId} does not exist`, 404));
+      else {
+        db.query(getRouteSql, userValue)
+          .then(routeResult => {
+            res.status(200).json(routeResult.rows);
+          })
+          .catch(err => next(err));
+      }
+    })
     .catch(err => next(err));
 });
-// get routes for page (pagination)
-app.get('/api/route/page/:userId/:routeId', (req, res, next) => {
+// get single route information using route id
+app.get('/api/route/detail/:userId/:routeId', (req, res, next) => {
   intTest(req.params.userId, next);
   intTest(req.params.routeId, next);
   const checkUserSql = `
@@ -221,20 +259,112 @@ app.get('/api/route/page/:userId/:routeId', (req, res, next) => {
      where "userId" = $1;
   `;
   const getRouteSql = `
-    select "routeId", "name", "grade", "location", "locationType", "attempts", "angle", "completed"
+    select *
       from "route"
-     where "userId" = $1 and "routeId" > $2
-     order by "routeId" ASC
-     limit 10;
+     where "userId" = $1 and "routeId" = $2;
   `;
   const checkUserValue = [parseInt(req.params.userId)];
   const getRouteValue = [parseInt(req.params.userId), parseInt(req.params.routeId)];
   db.query(checkUserSql, checkUserValue)
-    .then(checkUserResult => {
-      if (!checkUserResult.rows[0]) next(new ClientError(`user of id ${req.params.userId} does not exist`, 404));
+    .then(userResult => {
+      if (!userResult.rows[0]) next(new ClientError(`user of id ${req.params.userId} does not exist`, 404));
       else {
         db.query(getRouteSql, getRouteValue)
-          .then(getRouteResult => res.status(200).json(getRouteResult.rows))
+          .then(routeResult => {
+            if (!routeResult.rows[0]) next(new ClientError(`route of id ${req.params.routeId} does not exist`, 404));
+            else res.status(200).json(routeResult.rows[0]);
+          })
+          .catch(err => next(err));
+      }
+    })
+    .catch(err => next(err));
+});
+// edit and update routes
+app.put('/api/route/update', (req, res, next) => {
+  if (!req.body.routeId) next(new ClientError('missing route id', 400));
+  else if (!req.body.name) next(new ClientError('missing name', 400));
+  else if (!req.body.grade) next(new ClientError('missing grade', 400));
+  else if (!req.body.attempt) next(new ClientError('missing attempts', 400));
+  else if (!req.body.location) next(new ClientError('missing location', 400));
+  else if (!req.body.locationType) next(new ClientError('missing location type', 400));
+  else if (!req.body.completed) next(new ClientError('missing completed time', 400));
+  if (req.body.routeId) intTest(req.body.routeId, next);
+  if (req.body.attempt) intTest(req.body.attempt, next);
+  if (req.body.angle) intTest(req.body.angle, next);
+  if (req.body.locationType && typeof req.body.locationType !== 'boolean') next(new ClientError(`${req.body.locationType} is not a valid boolean`, 400));
+  if (req.body.completed) {
+    if (!dateTest(req.body.completed)) next(new ClientError(`${req.body.completed} is not a valid date`, 400));
+  }
+  const checkRouteIdSql = `
+    select "routeId"
+      from "route"
+     where "routeId" = $1;
+  `;
+  const updateRouteSql = `
+    update "route"
+       set "name" = $1,
+           "grade" = $2,
+           "attempts" = $3,
+           "location" = $4,
+           "locationType" = $5,
+           "completed" = $6,
+           "angle" = $7,
+           "note" = $8
+     where "routeId" = $9
+     returning *;
+  `;
+  const checkRouteIdValue = [parseInt(req.body.routeId)];
+  const updateRouteValue = [req.body.name, parseInt(req.body.grade),
+    parseInt(req.body.attempt), req.body.location, req.body.locationType,
+    req.body.completed, req.body.angle === 'null' ? null : parseInt(req.body.angle),
+    req.body.note, parseInt(req.body.routeId)];
+  db.query(checkRouteIdSql, checkRouteIdValue)
+    .then(checkRouteIdResult => {
+      if (!checkRouteIdResult.rows[0]) next(new ClientError(`route id ${req.body.routeId} does not exist`, 404));
+      else {
+        db.query(updateRouteSql, updateRouteValue)
+          .then(updateResult => res.status(201).json(updateResult.rows[0]))
+          .catch(err => next(err));
+      }
+    })
+    .catch(err => next(err));
+});
+// delete route
+app.delete('/api/route/delete', (req, res, next) => {
+  if (!req.body.userId) next(new ClientError('missing user id', 400));
+  else if (!req.body.routeId) next(new ClientError('missing route id', 400));
+  if (req.body.userId) intTest(req.body.userId, next);
+  if (req.body.routeId) intTest(req.body.routeId, next);
+  const checkUserIdSql = `
+    select "userId"
+      from "route"
+     where "userId" = $1;
+  `;
+  const checkRouteIdSql = `
+    select "routeId"
+      from "route"
+     where "routeId" = $1 and "userId" = $2;
+  `;
+  const deleteRouteSql = `
+    delete from "route"
+     where "routeId" = $1;
+  `;
+  const checkUserIdValue = [parseInt(req.body.userId)];
+  const checkRouteIdValue = [parseInt(req.body.routeId), parseInt(req.body.userId)];
+  const deleteRouteValue = [parseInt(req.body.routeId)];
+  db.query(checkUserIdSql, checkUserIdValue)
+    .then(checkUserResult => {
+      if (!checkUserResult.rows[0]) next(new ClientError(`user id ${req.body.userId} does not exist`, 404));
+      else {
+        db.query(checkRouteIdSql, checkRouteIdValue)
+          .then(checkRouteResult => {
+            if (!checkRouteResult.rows[0]) next(new ClientError(`route id ${req.body.routeId} does not exist`, 404));
+            else {
+              db.query(deleteRouteSql, deleteRouteValue)
+                .then(deleteRouteResult => res.status(204).json([]))
+                .catch(err => next(err));
+            }
+          })
           .catch(err => next(err));
       }
     })
