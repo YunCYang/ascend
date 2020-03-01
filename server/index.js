@@ -291,7 +291,7 @@ app.post('/api/route/add', (req, res, next) => {
   if (req.body.userId) intTest(req.body.userId, next);
   if (req.body.routeId) intTest(req.body.routeId, next);
   if (req.body.attempt) intTest(req.body.attempt, next);
-  if (req.body.angle) intTest(req.body.angle, next);
+  if (req.body.angle !== 'null') intTest(req.body.angle, next);
   if (req.body.locationType && typeof req.body.locationType !== 'boolean') next(new ClientError(`${req.body.locationType} is not a valid boolean`, 400));
   if (req.body.completed) {
     if (!dateTest(req.body.completed)) next(new ClientError(`${req.body.completed} is not a valid date`, 400));
@@ -308,7 +308,7 @@ app.post('/api/route/add', (req, res, next) => {
   `;
   const checkUserValue = [parseInt(req.body.userId)];
   const postRouteValue = [req.body.name, parseInt(req.body.grade),
-    parseInt(req.body.userId), req.body.location, req.body.locationType,
+    parseInt(req.body.userId), req.body.location, req.body.locationType === 'true',
     parseInt(req.body.attempt), req.body.angle === 'null' ? null : parseInt(req.body.angle),
     req.body.completed, req.body.note];
   db.query(checkUserIdSql, checkUserValue)
@@ -316,7 +316,7 @@ app.post('/api/route/add', (req, res, next) => {
       if (!checkUserResult.rows[0]) next(new ClientError(`user id ${req.body.userId} does not exist`, 404));
       else {
         db.query(postRouteSql, postRouteValue)
-          .then(postRouteResult => res.status(201).json(postRouteResult))
+          .then(postRouteResult => res.status(201).json(postRouteResult.rows[0]))
           .catch(err => next(err));
       }
     })

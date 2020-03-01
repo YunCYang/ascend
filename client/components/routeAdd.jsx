@@ -1,6 +1,9 @@
 import React from 'react';
+import { gradeConversion } from './routeDetail';
+import { IdContext } from './app';
 
 const RouteAdd = props => {
+  const id = React.useContext(IdContext);
   const getToday = () => {
     const today = new Date();
     const dd = String(today.getDate()).padStart(2, '0');
@@ -85,6 +88,14 @@ const RouteAdd = props => {
     setNoteState({ value: '', isValid: true });
   };
 
+  const processGrade = () => {
+    if (gradeState.value) {
+      const combinedGrade = gradeConversion(gradeState.value);
+      if (isNaN(combinedGrade[2])) return combinedGrade[1];
+      else return combinedGrade[1] + combinedGrade[2];
+    }
+  };
+
   const handleSubmit = () => {
     checkName();
     checkGrade();
@@ -93,7 +104,26 @@ const RouteAdd = props => {
     checkAngle();
     if (nameState.isValid && gradeState.isValid && attemptState.isValid &&
       locationState.isValid && angleState.isValid) {
-      return null;
+      const init = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          userId: id.id,
+          name: nameState.value,
+          grade: processGrade(),
+          attempt: attemptState.value,
+          location: locationState.value,
+          locationType: locationTypeState.value,
+          completed: timeState.value || getToday(),
+          angle: angleState.value ? angleState.value : 'null',
+          note: noteState.value
+        })
+      };
+      fetch('/api/route/add', init)
+        .then(res => res.json())
+        .then(res => clearInput());
     }
   };
 
