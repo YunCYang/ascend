@@ -279,6 +279,49 @@ app.get('/api/route/detail/:userId/:routeId', (req, res, next) => {
     })
     .catch(err => next(err));
 });
+// add new route
+app.post('/api/route/add', (req, res, next) => {
+  if (!req.body.userId) next(new ClientError('missing user id', 400));
+  else if (!req.body.name) next(new ClientError('missing name', 400));
+  else if (!req.body.grade) next(new ClientError('missing grade', 400));
+  else if (!req.body.attempt) next(new ClientError('missing attempts', 400));
+  else if (!req.body.location) next(new ClientError('missing location', 400));
+  else if (!req.body.locationType) next(new ClientError('missing location type', 400));
+  else if (!req.body.completed) next(new ClientError('missing completed time', 400));
+  if (req.body.userId) intTest(req.body.userId, next);
+  if (req.body.routeId) intTest(req.body.routeId, next);
+  if (req.body.attempt) intTest(req.body.attempt, next);
+  if (req.body.angle) intTest(req.body.angle, next);
+  if (req.body.locationType && typeof req.body.locationType !== 'boolean') next(new ClientError(`${req.body.locationType} is not a valid boolean`, 400));
+  if (req.body.completed) {
+    if (!dateTest(req.body.completed)) next(new ClientError(`${req.body.completed} is not a valid date`, 400));
+  }
+  const checkUserIdSql = `
+    select "userId"
+      from "user"
+     where "userId" = $1;
+  `;
+  const postRouteSql = `
+    insert into "route" ("name", "grade", "userId", "location", "locationType", "attempts", "angle", "completed", "note")
+    values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+    returning *;
+  `;
+  const checkUserValue = [parseInt(req.body.userId)];
+  const postRouteValue = [req.body.name, parseInt(req.body.grade),
+    parseInt(req.body.userId), req.body.location, req.body.locationType,
+    parseInt(req.body.attempt), req.body.angle === 'null' ? null : parseInt(req.body.angle),
+    req.body.completed, req.body.note];
+  db.query(checkUserIdSql, checkUserValue)
+    .then(checkUserResult => {
+      if (!checkUserResult.rows[0]) next(new ClientError(`user id ${req.body.userId} does not exist`, 404));
+      else {
+        db.query(postRouteSql, postRouteValue)
+          .then(postRouteResult => res.status(201).json(postRouteResult))
+          .catch(err => next(err));
+      }
+    })
+    .catch(err => next(err));
+});
 // edit and update routes
 app.put('/api/route/update', (req, res, next) => {
   if (!req.body.routeId) next(new ClientError('missing route id', 400));

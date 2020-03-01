@@ -447,7 +447,7 @@ const RouteDetail = props => {
   );
 
   return (
-    <div className='container w-50'>
+    <div className='container w-75'>
       <form className='needs-validation' noValidate onSubmit={submitHandler}>
         <div className='container row row-cols-1 row-cols-md-2'>
           <div className={`form-group col mb-4 ${isEdit ? 'pointer' : ''}`}
@@ -477,7 +477,7 @@ const RouteDetail = props => {
               }
             }>
             {toggleTextInput(<span>{gradeConversion(gradeState.value)}</span>,
-              renderInput(gradeState, setGradeState, 'V-Scale or Font Scale', 'grade'), gradeState)}
+              renderInput(gradeState, setGradeState, 'V or Font Scale', 'grade'), gradeState)}
             <div className="invalid-feedback">
               <span>Invalid Grade. Please provide V-scale or Font scale grade.</span>
             </div>
