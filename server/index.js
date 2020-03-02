@@ -315,7 +315,7 @@ app.get('/api/stat/favLoc/:userId', (req, res, next) => {
      where "userId" = $1;
   `;
   const getLocSql = `
-    select "location", count("location"),
+    select "location", count("location")
       from "route"
      where "userId" = $1
      group by "location"
