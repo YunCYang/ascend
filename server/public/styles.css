@@ -38,6 +38,9 @@ div.main div.section div.card a {
 div.main div.section div.card .card-title {
   cursor: pointer;
 }
+div.main div.section ul {
+  font-family: "Cabin", sans-serif;
+}
 
 .pointer {
   cursor: pointer;

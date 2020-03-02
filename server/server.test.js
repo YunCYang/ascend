@@ -139,9 +139,6 @@ describe('Initial Jest Test', () => {
     const nonExistingUserRes = await request.get('/api/route/all/100000');
     expect(nonExistingUserRes.status).toBe(404);
     expect(nonExistingUserRes.body.error).toBe('user of id 100000 does not exist');
-    const successRes = await request.get('/api/route/all/1');
-    expect(successRes.status).toBe(200);
-    expect(successRes.body.length).toBe(22);
     done();
   });
 
@@ -158,8 +155,6 @@ describe('Initial Jest Test', () => {
     const nonExistingRouteRes = await request.get('/api/route/detail/1/100000');
     expect(nonExistingRouteRes.status).toBe(404);
     expect(nonExistingRouteRes.body.error).toBe('route of id 100000 does not exist');
-    const successRes = await request.get('/api/route/detail/1/1');
-    expect(successRes.status).toBe(200);
     done();
   });
 
@@ -264,18 +259,6 @@ describe('Initial Jest Test', () => {
     });
     expect(invalidAngleRes.status).toBe(400);
     expect(invalidAngleRes.body.error).toBe('id a is not a valid positive integer');
-    const successRes = await request.put('/api/route/update').send({
-      routeId: 1,
-      name: 'New Route',
-      grade: 'V0 | 4',
-      attempt: 1,
-      location: 'New Location',
-      locationType: true,
-      completed: '2020-02-25',
-      angle: 30,
-      note: null
-    });
-    expect(successRes.status).toBe(201);
     done();
   });
 });

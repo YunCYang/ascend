@@ -279,6 +279,87 @@ app.get('/api/route/detail/:userId/:routeId', (req, res, next) => {
     })
     .catch(err => next(err));
 });
+// get best grade
+app.get('/api/stat/best/:userId', (req, res, next) => {
+  intTest(req.params.userId, next);
+  const checkUserSql = `
+    select "userId"
+      from "route"
+     where "userId" = $1;
+  `;
+  const getGradeSql = `
+    select "grade"
+      from "route"
+     where "userId" = $1
+     order by "grade" desc
+     limit 1;
+  `;
+  const userValue = [parseInt(req.params.userId)];
+  db.query(checkUserSql, userValue)
+    .then(userResult => {
+      if (!userResult.rows[0]) next(new ClientError(`user of id ${req.params.userId} does not exist`, 404));
+      else {
+        db.query(getGradeSql, userValue)
+          .then(getGradeResult => res.status(200).json(getGradeResult.rows[0]))
+          .catch(err => next(err));
+      }
+    })
+    .catch(err => next(err));
+});
+// get favorite location
+app.get('/api/stat/favLoc/:userId', (req, res, next) => {
+  intTest(req.params.userId, next);
+  const checkUserSql = `
+    select "userId"
+      from "route"
+     where "userId" = $1;
+  `;
+  const getLocSql = `
+    select "location", count("location")
+      from "route"
+     where "userId" = $1
+     group by "location"
+     order by count desc
+     limit 1;
+  `;
+  const userValue = [parseInt(req.params.userId)];
+  db.query(checkUserSql, userValue)
+    .then(userResult => {
+      if (!userResult.rows[0]) next(new ClientError(`user of id ${req.params.userId} does not exist`, 404));
+      else {
+        db.query(getLocSql, userValue)
+          .then(getLocResult => res.status(200).json(getLocResult.rows[0]))
+          .catch(err => next(err));
+      }
+    })
+    .catch(err => next(err));
+});
+// get attempts for grade
+app.get('/api/stat/avgAtmp/:userId/:grade', (req, res, next) => {
+  intTest(req.params.userId, next);
+  intTest(req.params.grade, next);
+  const checkGradeSql = `
+    select "grade"
+      from "route"
+     where "userId" = $1 and "grade" = $2;
+  `;
+  const getAtmpSql = `
+    select "attempts"
+      from "route"
+     where "userId" = $1 and "grade" = $2;
+  `;
+  const atmpValue = [parseInt(req.params.userId), parseInt(req.params.grade)];
+  db.query(checkGradeSql, atmpValue)
+    .then(gradeResult => {
+      if (!gradeResult.rows[0]) next(new ClientError('user id or grade does not exist', 404));
+      else {
+        db.query(getAtmpSql, atmpValue)
+          .then(atmpResult => res.status(200).json(atmpResult.rows))
+          .catch(err => next(err));
+      }
+    })
+    .catch(err => next(err));
+});
 // add new route
 app.post('/api/route/add', (req, res, next) => {
   if (!req.body.userId) next(new ClientError('missing user id', 400));
