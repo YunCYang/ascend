@@ -46,7 +46,7 @@ Link: https://ascend.yuncyang.com
 
 ## Preview
 ![](./server/public/images/ascend_log.png)
-![](./server/public/images/lascend_detail.png)
+![](./server/public/images/ascend_detail.png)
 
 ## Planned Features
 - Adding more different types of stats to display on *Stat* page
